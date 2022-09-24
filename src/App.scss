@@ -1,0 +1,39 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: monospace;
+
+  button {
+    width: 150px;
+    color: white;
+  }
+
+  input {
+    text-align: center;
+    border-radius: 12px;
+    border: none;
+  }
+}
+
+.swap {
+  display: flex;
+  justify-content: center;
+  color: white;
+
+  input {
+    width: 50px;
+  }
+
+  &-gap {
+    display: flex;
+    gap: 8px;
+  }
+}

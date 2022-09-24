@@ -1,0 +1,167 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  background-color: #363636;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: #646cff;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+table {
+  border-collapse: collapse;
+  background-color: white;
+}
+
+td {
+  width: 40px;
+  height: 40px;
+  border: 1px solid;
+
+  &:hover {
+    background-color: #EEE;
+  }
+
+  &.highlight {
+    background-color: hsl(350, 100%, 88%);
+
+    &:hover {
+      background-color: hsl(350, 100%, 83%);
+    }
+  }
+  
+  &.hidden {
+    color: white;
+    border-color: black;
+
+    &:hover {
+      color: #777;
+    }
+  }
+
+  &.border-top-bold {
+    border-top-width: 2px;
+  }
+
+  &.border-bottom-bold {
+    border-bottom-width: 2px;
+  }
+
+  &.border-right-bold {
+    border-right-width: 2px;
+  }
+
+  &.border-left-bold {
+    border-left-width: 2px;
+    border-left-style: dashed;
+  }
+}
+
+.arrow-cell {
+  background-color: #242424;
+  color: white;
+  border-color: black;
+  font-size: 14pt;
+
+  &:hover {
+    background-color: #363636;
+    cursor: pointer;
+  }
+}
+
+.reset-container {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+
+  button {
+    width: 200px;
+  }
+}
+
+.cell-changed {
+  background-color: hsl(180, 100%, 75%);
+
+  &:hover {
+    background-color: hsl(180, 100%, 50%);
+  }
+}
+
+.danger {
+  background-color: hsl(348, 83%, 37%);
+}
+
+.highlight-container {
+  display: flex;
+  justify-content: center;
+  color: white;
+
+  label {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+.version-container {
+  display: flex;
+  justify-content: flex-end;
+  color: #161616;
+  font-size: 10pt;
+}
+
+.offset-faded {
+  color: #777;
+}
