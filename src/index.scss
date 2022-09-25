@@ -17,10 +17,10 @@ a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
-}
 
-a:hover {
-  color: #535bf2;
+  &:hover {
+    color: #535bf2;
+  }
 }
 
 body {
@@ -223,17 +223,6 @@ td {
   background-color: hsl(348, 83%, 37%);
 }
 
-.highlight-container {
-  display: flex;
-  justify-content: center;
-  color: white;
-
-  label {
-    display: flex;
-    gap: 4px;
-  }
-}
-
 .version-container {
   display: flex;
   justify-content: flex-end;
@@ -264,13 +253,26 @@ td {
   display: flex;
   justify-content: center;
   color: white;
+  gap: 8px;
 
   label {
     display: flex;
     gap: 4px;
   }
+
+  button.wide-button {
+    width: 308px;
+  }
 }
 
 .cursor-pointer {
   cursor: pointer;
+}
+
+.white {
+  color: white;
+}
+
+.spacer {
+  height: 1rem;
 }

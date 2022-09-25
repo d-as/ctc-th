@@ -34,7 +34,7 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.3.9 / DAS#0437';
+const VERSION_TEXT = 'v0.4.0 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -65,10 +65,13 @@ const App = () => {
     return letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
   }
 
-  const getCell = (row: number, col: number): string => {
+  const getCell = (row: number, col: number, visual = false): string => {
     if (row === 0 && col === 0) {
       return ''
     } else if (row === 0) {
+      if (visual) {
+        return (col > 18 ? (col - 18) : col).toString();
+      }
       return col.toString();
     } else if (col === 0) {
       return indexToLetter(row);
@@ -295,12 +298,9 @@ const App = () => {
     }
   };
 
-  const clearSwapRowInputs = () => {
+  const clearSelectedRowsAndCols = () => {
     setSwapRowFrom('');
     setSwapRowTo('');
-  };
-
-  const clearSwapColInputs = () => {
     setSwapColFrom('');
     setSwapColTo('');
   };
@@ -505,7 +505,7 @@ const App = () => {
                 onMouseEnter={() => hoverCell(row, col, true)}
                 onMouseLeave={() => hoverCell(row, col, false)}
               >
-                {getCell(row, col)}
+                {getCell(row, col, true)}
               </td>
             ))}
             </tr>)
@@ -525,83 +525,55 @@ const App = () => {
           </tr>
         </tfoot>
       </table>
-      <div className="swap">
-        <span className="swap-gap">
-          <button
-            onClick={() => clearSwapRowInputs()}
-            disabled={!swapRowFrom && !swapRowTo}
-          >
-            Clear inputs
-          </button>
-          <input
-            value={swapRowFrom}
-            onChange={e => setSwapRowFrom(e.target.value)}
-            maxLength={1}
-            placeholder="Row"
-          />
-          ⇄
-          <input
-            value={swapRowTo}
-            onChange={e => setSwapRowTo(e.target.value)}
-            maxLength={1}
-            placeholder="Row"
-          />
-          <button
-            onClick={() => swapRows()}
-            disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
-          >
-            Swap rows
-          </button>
-        </span>
+      <span className="white">
+        Click row/column labels to select them
+      </span>
+      <div className="option-row">
+        <button
+          onClick={() => swapRows()}
+          disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
+        >
+          Swap rows
+        </button>
+        <button
+          onClick={() => swapCols()}
+          disabled={!swapColFrom.trim() || !swapColTo.trim()}
+        >
+          Swap columns
+        </button>
       </div>
-      <div className="swap">
-        <span className="swap-gap">
-          <button
-            onClick={() => clearSwapColInputs()}
-            disabled={!swapColFrom && !swapColTo}
-          >
-            Clear inputs
-          </button>
-          <input
-            value={swapColFrom}
-            onChange={e => setSwapColFrom(e.target.value)}
-            maxLength={2}
-            placeholder="Column"
-          />
-          ⇄
-          <input
-            value={swapColTo}
-            onChange={e => setSwapColTo(e.target.value)}
-            maxLength={2}
-            placeholder="Column"
-          />
-          <button
-            onClick={() => swapCols()}
-            disabled={!swapColFrom.trim() || !swapColTo.trim()}
-          >
-            Swap columns
-          </button>
-        </span>
-      </div>
-      <div className="highlight-container">
-        <label>
-          <input
-            type="radio"
-            checked={selectMode === SelectMode.HIGHLIGHT}
-            onChange={e => setSelectMode(e.target.checked ? SelectMode.HIGHLIGHT : SelectMode.HIDE)}
-          />
-          Highlight
-        </label>
-        <label>
-          <input
-            type="radio"
-            checked={selectMode === SelectMode.HIDE}
-            onChange={e => setSelectMode(e.target.checked ? SelectMode.HIDE : SelectMode.HIGHLIGHT)}
-          />
-          Hide
-        </label>
+      <div className="option-row">
+        <button
+          onClick={() => clearSelectedRowsAndCols()}
+          disabled={!swapRowFrom && !swapRowTo && !swapColFrom && !swapColTo}
+          className="wide-button"
+        >
+          Clear selected rows/columns
+        </button>
       </div>
       <div className="options-container">
+        <span className="option-row">
+          Cell selection mode
+        </span>
+        <span className="option-row">
+          <label>
+            <input
+              type="radio"
+              checked={selectMode === SelectMode.HIGHLIGHT}
+              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIGHLIGHT : SelectMode.HIDE)}
+            />
+            Highlight
+          </label>
+          <label>
+            <input
+              type="radio"
+              checked={selectMode === SelectMode.HIDE}
+              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIDE : SelectMode.HIGHLIGHT)}
+            />
+            Hide
+          </label>
+        </span>
+        <div className="spacer"></div>
         <span className="option-row">
           <label>
             <input
