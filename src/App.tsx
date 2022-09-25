@@ -32,7 +32,8 @@ enum LocalStorageKey {
   HIGHLIGHTS_3 = 'highlights3',
   HIGHLIGHTS_4 = 'highlights4',
   HIDDEN = 'hidden',
-  ROW_ORDER = 'rowOrder',
+  ROW_ORDER_LEFT = 'rowOrder',
+  ROW_ORDER_RIGHT = 'rowOrderRight',
   COL_ORDER = 'colOrder',
   COL_OFFSETS = 'colOffsets',
   SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
@@ -40,20 +41,21 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.4.5 / DAS#0437';
+const VERSION_TEXT = 'v0.4.6 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
   const [rows, setRows] = useState([...rowData]);
   const [trueRows, setTrueRows] = useState(rows);
-  const [rowOrder, setRowOrder] = useState(range(11));
-  const [colOrder, setColOrder] = useState(range(37));
+  const [rowOrderLeft, setRowOrderLeft] = useState(range(11));
+  const [rowOrderRight, setRowOrderRight] = useState(range(11));
+  const [colOrder, setColOrder] = useState(range(38));
   const [highlights1, setHighlights1] = useState(new Set<string>());
   const [highlights2, setHighlights2] = useState(new Set<string>());
   const [highlights3, setHighlights3] = useState(new Set<string>());
   const [highlights4, setHighlights4] = useState(new Set<string>());
   const [hidden, setHidden] = useState(new Set<string>());
-  const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(37).map(n => [n, 0])));
+  const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(38).map(n => [n, 0])));
   const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_1);
 
   const [swapRowFrom, setSwapRowFrom] = useState('');
@@ -79,14 +81,14 @@ const App = () => {
   };
 
   const getCell = (row: number, col: number, trueRow: number, trueCol: number, visual = false): string => {
-    if (row === 0 && col === 0) {
+    if (row === 0 && (col < 1 || col > 36)) {
       return ''
     } else if (row === 0) {
       if (visual && trueCol > 18 && noDuplicateLabelsOnOneSide()) {
         return (col > 18 ? (col - 18) : col).toString();
       }
       return col.toString();
-    } else if (col === 0) {
+    } else if (col === 0 || col === 37) {
       return indexToLetter(row);
     }
     return rows[row - 1][col - 1];
@@ -101,7 +103,11 @@ const App = () => {
   };
 
   const getActiveCellStyle = (row: number, col: number, cell: string): string => {
-    return (row !== 0 || col !== 0) && (
+    if (row === 0 && (col < 1 || col > 36)) {
+      return '';
+    }
+
+    return (
       swapColFrom === cell || swapColTo === cell ||
       swapRowFrom.toUpperCase() === cell || swapRowTo.toUpperCase() === cell
     ) ? 'cell-swap-active' : '';
@@ -118,7 +124,7 @@ const App = () => {
   const getCellStyle = (row: number, col: number, trueRow: number, trueCol: number): string => {
     const cell = getCell(row, col, trueRow, trueCol);
 
-    if (row === 0 || col === 0) {
+    if (row === 0 || col === 0 || col === 37) {
       return [
         'cursor-pointer',
         getActiveCellStyle(row, col, cell),
@@ -163,7 +169,7 @@ const App = () => {
         setSwapColFrom(cell);
         setSwapColTo('');
       }
-    } else if (col === 0) {
+    } else if (col === 0 || col === 37) {
       if (swapRowFrom.trim().toUpperCase() === cell) {
         setSwapRowFrom('');
       } else if (swapRowTo.trim().toUpperCase() === cell) {
@@ -180,7 +186,7 @@ const App = () => {
   };
 
   const cellClicked = (row: number, col: number, trueRow: number, trueCol: number): void => {
-    if (row === 0 || col === 0) {
+    if (row === 0 || col === 0 || col === 37) {
       headerClicked(row, col, trueRow, trueCol);
       return;
     }
@@ -270,7 +276,8 @@ const App = () => {
     const localHighlights3 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_3);
     const localHighlights4 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_4);
     const localHidden = window.localStorage.getItem(LocalStorageKey.HIDDEN);
-    const localRowOrder = window.localStorage.getItem(LocalStorageKey.ROW_ORDER);
+    const localRowOrderRight = window.localStorage.getItem(LocalStorageKey.ROW_ORDER_RIGHT);
+    const localRowOrderLeft = window.localStorage.getItem(LocalStorageKey.ROW_ORDER_LEFT);
     const localColOrder = window.localStorage.getItem(LocalStorageKey.COL_ORDER);
     const localColOffsets = window.localStorage.getItem(LocalStorageKey.COL_OFFSETS);
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
@@ -297,15 +304,19 @@ const App = () => {
       setHidden(new Set(JSON.parse(localHidden)));
     }
 
-    if (localRowOrder) {
-      setRowOrder(JSON.parse(localRowOrder));
+    if (localRowOrderLeft) {
+      setRowOrderLeft(JSON.parse(localRowOrderLeft));
     }
 
-    if (localColOrder) {
+    if (localRowOrderRight) {
+      setRowOrderRight(JSON.parse(localRowOrderRight));
+    }
+
+    if (localColOrder && localColOrder.length === 38) {
       setColOrder(JSON.parse(localColOrder));
     }
 
-    if (localColOffsets) {
+    if (localColOffsets && localColOffsets.length === 38) {
       setColOffsets(JSON.parse(localColOffsets));
     }
 
@@ -335,22 +346,31 @@ const App = () => {
   }, [colOffsets]);
 
   useEffect(() => {
-    const newTrueRows = rowOrder.slice(1).map(row => row - 1).map(row => {
-      return colOrder.slice(1).map(col => col - 1).map(col => {
+    const trueRowsLeft = rowOrderLeft.slice(1).map(row => row - 1).map(row => {
+      return colOrder.slice(1, 19).map(col => col - 1).map(col => {
         return rows[row][col];
       })
         .join('');
     });
 
-    setTrueRows(newTrueRows);
-  }, [rows, rowOrder, colOrder]);
+    const trueRowsRight = rowOrderRight.slice(1).map(row => row - 1).map(row => {
+      return colOrder.slice(19).map(col => col - 1).map(col => {
+        return rows[row][col];
+      })
+        .join('');
+    });
 
-  const swapRows = () => {
+    const newTrueRows = range(10).map(i => [trueRowsLeft[i], trueRowsRight[i]].join(''));
+
+    setTrueRows(newTrueRows);
+  }, [rows, rowOrderLeft, rowOrderRight, colOrder]);
+
+  const swapRows = (side: 'left' | 'right') => {
     const from = letterToIndex(swapRowFrom.toUpperCase().trim());
     const to = letterToIndex(swapRowTo.toUpperCase().trim());
 
     if (from > 0 && from <= 10 && to > 0 && to <= 10) {
-      const newRowOrder = rowOrder.map(n => {
+      const newRowOrder = (side === 'left' ? rowOrderLeft : rowOrderRight).map(n => {
         if (n === from) {
           return to;
         } else if (n === to) {
@@ -359,8 +379,16 @@ const App = () => {
         return n;
       });
 
-      window.localStorage.setItem(LocalStorageKey.ROW_ORDER, JSON.stringify(newRowOrder));
-      setRowOrder(newRowOrder);
+      window.localStorage.setItem(
+        side === 'left' ? LocalStorageKey.ROW_ORDER_LEFT : LocalStorageKey.ROW_ORDER_RIGHT,
+        JSON.stringify(newRowOrder),
+      );
+
+      if (side === 'left') {
+        setRowOrderLeft(newRowOrder);
+      } else {
+        setRowOrderRight(newRowOrder);
+      }
     }
   };
 
@@ -418,12 +446,14 @@ const App = () => {
   };
 
   const resetRows = (): void => {
-    setRowOrder(range(11));
-    window.localStorage.removeItem(LocalStorageKey.ROW_ORDER);
+    setRowOrderLeft(range(11));
+    setRowOrderRight(range(11));
+    window.localStorage.removeItem(LocalStorageKey.ROW_ORDER_LEFT);
+    window.localStorage.removeItem(LocalStorageKey.ROW_ORDER_RIGHT);
   };
 
   const resetCols = (): void => {
-    setColOrder(range(37));
+    setColOrder(range(38));
     window.localStorage.removeItem(LocalStorageKey.COL_ORDER);
   };
 
@@ -441,7 +471,7 @@ const App = () => {
   };
 
   const resetOffsets = (): void => {
-    setColOffsets(Object.fromEntries(range(37).map(n => [n, 0])));
+    setColOffsets(Object.fromEntries(range(38).map(n => [n, 0])));
     window.localStorage.removeItem(LocalStorageKey.COL_OFFSETS);
   };
 
@@ -487,9 +517,12 @@ const App = () => {
     window.localStorage.setItem(LocalStorageKey.SHOW_VOWELS, JSON.stringify(show));
   };
 
-  const resetRowsDisabled = (): boolean => rowOrder.toString() === range(11).toString();
+  const resetRowsDisabled = (): boolean => {
+    const defaultRange = range(11).toString();
+    return rowOrderLeft.toString() === defaultRange && rowOrderRight.toString() === defaultRange;
+  };
 
-  const resetColsDisabled = (): boolean => colOrder.toString() === range(37).toString();
+  const resetColsDisabled = (): boolean => colOrder.toString() === range(38).toString();
 
   const resetHighlightsDisabled = (): boolean => (
     !highlights1.size && !highlights2.size && !highlights3.size && !highlights4.size && !hidden.size
@@ -516,6 +549,40 @@ const App = () => {
       allInputsEmpty(),
     ]
       .every(t => t);
+  };
+
+  const renderCell = (row: number, col: number, trueRow: number, trueCol: number): JSX.Element => {
+    return (
+      <td
+        key={getCellKey(row, col)}
+        className={
+          [
+            row === 0 || col === 0 || col === 37 ? 'bold' : '',
+            (row === 0 || col === 0 || col === 37) && (row !== trueRow || col != trueCol) ? 'cell-changed' : '',
+            row === 0 ? 'border-bottom-bold' : '',
+            col === 0 ? 'border-right-bold' : '',
+            trueCol === 19 ? 'border-left-bold border-left-dashed' : '',
+            col === 37 ? 'border-left-bold' : '',
+            getCellStyle(row, col, trueRow, trueCol),
+          ]
+            .join(' ')
+        }
+        onClick={() => cellClicked(row, col, trueRow, trueCol)}
+        onMouseEnter={() => hoverCell(row, col, trueRow, trueCol, true)}
+        onMouseLeave={() => hoverCell(row, col, trueRow, trueCol, false)}
+      >
+        {getCell(row, col, trueRow, trueCol, true)}
+      </td>
+    );
+  };
+
+  const renderSides = (): JSX.Element[] => {
+    return range(11).map(row => (
+      <tr key={`row-${row}`}>
+        {colOrder.slice(0, 19).map((col, trueCol) => renderCell(rowOrderLeft[row], col, row, trueCol))}
+        {colOrder.slice(19).map((col, trueCol) => renderCell(rowOrderRight[row], col, row, trueCol + 19))}
+      </tr>
+    ));
   };
 
   return (
@@ -564,7 +631,7 @@ const App = () => {
                   className={getOffsetStyle(offset)}
                   onClick={() => resetColOffset(col)}
                 >
-                  {col > 0 ? offset : ''}
+                  {col > 0 && col <= 36 ? offset : ''}
                 </td>
               );
             })}
@@ -576,37 +643,13 @@ const App = () => {
                 className="border-bottom-bold arrow-cell"
                 onClick={() => transposeCol(col, -1)}
               >
-                {col > 0 ? '↑' : ''}
+                {col > 0 && col <= 36 ? '↑' : ''}
               </td>
             ))}
           </tr>
         </thead>
         <tbody>
-          {rowOrder.map((row, trueRow) => (
-            <tr key={row}>
-              {colOrder.map((col, trueCol) => (
-              <td
-                key={getCellKey(row, col)}
-                className={
-                  [
-                    row === 0 || col === 0 ? 'bold' : '',
-                    (row === 0 || col === 0) && (row !== trueRow || col != trueCol) ? 'cell-changed' : '',
-                    row === 0 ? 'border-bottom-bold' : '',
-                    col === 0 ? 'border-right-bold' : '',
-                    trueCol === 19 ? 'border-left-bold' : '',
-                    getCellStyle(row, col, trueRow, trueCol),
-                  ]
-                    .join(' ')
-                }
-                onClick={() => cellClicked(row, col, trueRow, trueCol)}
-                onMouseEnter={() => hoverCell(row, col, trueRow, trueCol, true)}
-                onMouseLeave={() => hoverCell(row, col, trueRow, trueCol, false)}
-              >
-                {getCell(row, col, trueRow, trueCol, true)}
-              </td>
-            ))}
-            </tr>)
-          )}
+          {renderSides()}
         </tbody>
         <tfoot>
           <tr>
@@ -616,7 +659,7 @@ const App = () => {
                 className="border-top-bold arrow-cell"
                 onClick={() => transposeCol(col, 1)}
               >
-                {col > 0 ? '↓' : ''}
+                {col > 0 && col <= 36 ? '↓' : ''}
               </td>
             ))}
           </tr>
@@ -635,14 +678,14 @@ const App = () => {
                     {range(4).map(n => (
                       <td
                         key={`highlight-option-${n + 1}`}
-                        className={`highlight-${n + 1} check-mark`}
+                        className={`highlight-${n + 1} check-mark cursor-pointer`}
                         onClick={() => setHighlightMode(n)}
                       >
                         {highlightMode === n ? '✔' : ''}
                       </td>
                     ))}
                     <td
-                      className={`hide ${highlightMode === HighlightMode.HIDE ? 'check-mark' : ''}`}
+                      className={`hide cursor-pointer ${highlightMode === HighlightMode.HIDE ? 'check-mark' : ''}`}
                       onClick={() => setHighlightMode(HighlightMode.HIDE)}
                     >
                       {highlightMode === HighlightMode.HIDE ? '✔' : 'Hide'}
@@ -690,16 +733,25 @@ const App = () => {
           </span>
           <div className="option-row">
             <button
-              onClick={() => swapRows()}
-              disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
-            >
-              Swap rows
-            </button>
-            <button
               onClick={() => swapCols()}
               disabled={!swapColFrom.trim() || !swapColTo.trim()}
+              className="wide-button"
             >
               Swap columns
+            </button>
+          </div>
+          <div className="option-row">
+            <button
+              onClick={() => swapRows('left')}
+              disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
+            >
+              Swap rows (left)
+            </button>
+            <button
+              onClick={() => swapRows('right')}
+              disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
+            >
+              Swap rows (right)
             </button>
           </div>
           <div className="option-row">

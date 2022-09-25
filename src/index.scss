@@ -221,6 +221,9 @@ td {
 
   &.border-left-bold {
     border-left-width: 2px;
+  }
+
+  &.border-left-dashed {
     border-left-style: dashed;
   }
 }
@@ -309,7 +312,7 @@ td {
   }
 
   button.wide-button {
-    width: 308px;
+    width: 408px;
   }
 }
 
@@ -341,6 +344,10 @@ td {
 .footer-container {
   display: flex;
   justify-content: space-between;
+
+  button {
+    min-width: 200px;
+  }
 
   .col:first-child {
     width: 33%;
