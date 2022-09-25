@@ -324,12 +324,12 @@ td {
   color: white;
 }
 
-.hint-text {
-  font-size: 11pt;
-}
-
 .spacer {
   height: 1rem;
+}
+
+.spacer-xs {
+  height: 0.5rem;
 }
 
 .check-mark {
@@ -369,4 +369,32 @@ td {
 
 .flex-end {
   justify-content: flex-end;
+}
+
+.virtual-arrows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  gap: 8px;
+
+  button {
+    min-width: 25px;
+    width: 50px;
+  }
+
+  .arrow-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .arrow-col {
+    display: flex;
+    flex-direction: column;
+    width: 50px;
+  }
+}
+
+.hint-text {
+  font-size: 10pt;
 }

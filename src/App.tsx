@@ -41,7 +41,14 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.4.6 / DAS#0437';
+enum Direction {
+  UP = 'up',
+  DOWN = 'down',
+  LEFT = 'left',
+  RIGHT = 'right',
+}
+
+const VERSION_TEXT = 'v0.5.0 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -58,8 +65,10 @@ const App = () => {
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(38).map(n => [n, 0])));
   const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_1);
 
-  const [swapRowFrom, setSwapRowFrom] = useState('');
-  const [swapRowTo, setSwapRowTo] = useState('');
+  const [swapLeftRowFrom, setSwapLeftRowFrom] = useState('');
+  const [swapLeftRowTo, setSwapLeftRowTo] = useState('');
+  const [swapRightRowFrom, setSwapRightRowFrom] = useState('');
+  const [swapRightRowTo, setSwapRightRowTo] = useState('');
   const [swapColFrom, setSwapColFrom] = useState('');
   const [swapColTo, setSwapColTo] = useState('');
 
@@ -73,6 +82,9 @@ const App = () => {
   };
 
   const letterToIndex = (letter: string): number => {
+    if (!letter) {
+      return -1;
+    }
     return letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
   }
 
@@ -109,7 +121,8 @@ const App = () => {
 
     return (
       swapColFrom === cell || swapColTo === cell ||
-      swapRowFrom.toUpperCase() === cell || swapRowTo.toUpperCase() === cell
+      (col === 0 && (swapLeftRowFrom === cell || swapLeftRowTo === cell)) ||
+      (col === 37 && (swapRightRowFrom === cell || swapRightRowTo === cell))
     ) ? 'cell-swap-active' : '';
   };
 
@@ -157,30 +170,43 @@ const App = () => {
     const cell = getCell(row, col, trueRow, trueCol);
 
     if (row === 0) {
-      if (swapColFrom.trim() === cell) {
+      if (swapColFrom === cell) {
         setSwapColFrom('');
-      } else if (swapColTo.trim() === cell) {
+      } else if (swapColTo === cell) {
         setSwapColTo('');
-      } else if (!swapColFrom.trim() && cell !== swapColTo) {
+      } else if (!swapColFrom && cell !== swapColTo) {
         setSwapColFrom(cell);
-      } else if (!swapColTo.trim() && cell !== swapColFrom) {
+      } else if (!swapColTo && cell !== swapColFrom) {
         setSwapColTo(cell);
       } else {
         setSwapColFrom(cell);
         setSwapColTo('');
       }
-    } else if (col === 0 || col === 37) {
-      if (swapRowFrom.trim().toUpperCase() === cell) {
-        setSwapRowFrom('');
-      } else if (swapRowTo.trim().toUpperCase() === cell) {
-        setSwapRowTo('');
-      } else if (!swapRowFrom.trim() && cell !== swapRowTo) {
-        setSwapRowFrom(cell);
-      } else if (!swapRowTo.trim() && cell !== swapRowFrom) {
-        setSwapRowTo(cell);
+    } else if (col === 0) {
+      if (swapLeftRowFrom === cell) {
+        setSwapLeftRowFrom('');
+      } else if (swapLeftRowTo === cell) {
+        setSwapLeftRowTo('');
+      } else if (!swapLeftRowFrom && cell !== swapLeftRowTo) {
+        setSwapLeftRowFrom(cell);
+      } else if (!swapLeftRowTo && cell !== swapLeftRowFrom) {
+        setSwapLeftRowTo(cell);
       } else {
-        setSwapRowFrom(cell);
-        setSwapRowTo('');
+        setSwapLeftRowFrom(cell);
+        setSwapLeftRowTo('');
+      }
+    } else if (col === 37) {
+      if (swapRightRowFrom === cell) {
+        setSwapRightRowFrom('');
+      } else if (swapRightRowTo === cell) {
+        setSwapRightRowTo('');
+      } else if (!swapRightRowFrom && cell !== swapRightRowTo) {
+        setSwapRightRowFrom(cell);
+      } else if (!swapRightRowTo && cell !== swapRightRowFrom) {
+        setSwapRightRowTo(cell);
+      } else {
+        setSwapRightRowFrom(cell);
+        setSwapRightRowTo('');
       }
     }
   };
@@ -366,8 +392,8 @@ const App = () => {
   }, [rows, rowOrderLeft, rowOrderRight, colOrder]);
 
   const swapRows = (side: 'left' | 'right') => {
-    const from = letterToIndex(swapRowFrom.toUpperCase().trim());
-    const to = letterToIndex(swapRowTo.toUpperCase().trim());
+    const from = letterToIndex((side === 'left' ? swapLeftRowFrom : swapRightRowFrom));
+    const to = letterToIndex((side === 'left' ? swapLeftRowTo : swapRightRowTo));
 
     if (from > 0 && from <= 10 && to > 0 && to <= 10) {
       const newRowOrder = (side === 'left' ? rowOrderLeft : rowOrderRight).map(n => {
@@ -392,10 +418,7 @@ const App = () => {
     }
   };
 
-  const swapCols = () => {
-    const from = Number(swapColFrom);
-    const to = Number(swapColTo);
-
+  const swapCols = (from: number, to: number) => {
     if (!Number.isNaN(from) && !Number.isNaN(to) && from > 0 && from <= 36 && to > 0 && to <= 36) {
       const newColOrder = colOrder.map(n => {
         if (n === from) {
@@ -412,8 +435,10 @@ const App = () => {
   };
 
   const clearSelectedRowsAndCols = () => {
-    setSwapRowFrom('');
-    setSwapRowTo('');
+    setSwapLeftRowFrom('');
+    setSwapLeftRowTo('');
+    setSwapRightRowFrom('');
+    setSwapRightRowTo('');
     setSwapColFrom('');
     setSwapColTo('');
   };
@@ -475,19 +500,12 @@ const App = () => {
     window.localStorage.removeItem(LocalStorageKey.COL_OFFSETS);
   };
 
-  const resetInputs = (): void => {
-    setSwapRowFrom('');
-    setSwapRowTo('');
-    setSwapColFrom('');
-    setSwapColTo('');
-  };
-
   const resetAll = (): void => {
     resetRows();
     resetCols();
     resetHighlights();
     resetOffsets();
-    resetInputs();
+    clearSelectedRowsAndCols();
   };
 
   const getOffsetStyle = (offset: number): string => {
@@ -530,10 +548,12 @@ const App = () => {
 
   const resetOffsetsDisabled = (): boolean => Object.values(colOffsets).every(offset => offset === 0);
 
-  const allInputsEmpty = (): boolean => {
+  const noActiveSwaps = (): boolean => {
     return [
-      swapRowFrom,
-      swapRowTo,
+      swapLeftRowFrom,
+      swapLeftRowTo,
+      swapRightRowFrom,
+      swapRightRowTo,
       swapColFrom,
       swapColTo,
     ]
@@ -546,7 +566,7 @@ const App = () => {
       resetColsDisabled(),
       resetHighlightsDisabled(),
       resetOffsetsDisabled(),
-      allInputsEmpty(),
+      noActiveSwaps(),
     ]
       .every(t => t);
   };
@@ -583,6 +603,21 @@ const App = () => {
         {colOrder.slice(19).map((col, trueCol) => renderCell(rowOrderRight[row], col, row, trueCol + 19))}
       </tr>
     ));
+  };
+
+  const shiftAllowed = (): boolean => {
+    return [
+      swapLeftRowFrom, swapLeftRowTo, swapRightRowFrom, swapRightRowTo, swapColFrom, swapColTo,
+    ]
+      .filter(s => s).length === 1;
+  };
+
+  const shiftHorizontalAllowed = (): boolean => {
+    return shiftAllowed() && !!(swapColFrom || swapColTo);
+  };
+
+  const shiftVerticalAllowed = (): boolean => {
+    return shiftAllowed();
   };
 
   return (
@@ -733,8 +768,8 @@ const App = () => {
           </span>
           <div className="option-row">
             <button
-              onClick={() => swapCols()}
-              disabled={!swapColFrom.trim() || !swapColTo.trim()}
+              onClick={() => swapCols(Number(swapColFrom), Number(swapColTo))}
+              disabled={!swapColFrom || !swapColTo}
               className="wide-button"
             >
               Swap columns
@@ -743,13 +778,13 @@ const App = () => {
           <div className="option-row">
             <button
               onClick={() => swapRows('left')}
-              disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
+              disabled={!swapLeftRowFrom || !swapLeftRowTo}
             >
               Swap rows (left)
             </button>
             <button
               onClick={() => swapRows('right')}
-              disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
+              disabled={!swapRightRowFrom || !swapRightRowTo}
             >
               Swap rows (right)
             </button>
@@ -757,14 +792,48 @@ const App = () => {
           <div className="option-row">
             <button
               onClick={() => clearSelectedRowsAndCols()}
-              disabled={!swapRowFrom && !swapRowTo && !swapColFrom && !swapColTo}
+              disabled={
+                !swapLeftRowFrom && !swapLeftRowTo && !swapRightRowFrom && !swapRightRowTo && !swapColFrom && !swapColTo
+              }
               className="wide-button"
             >
               Clear selected rows/columns
             </button>
           </div>
         </div>
-        <div className="col flex-end">
+        <div className="col">
+          <span className="white hint-text">
+            Shift active row/column by clicking the arrows
+          </span>
+          <div className="spacer"></div>
+          <div className="virtual-arrows">
+            <span className="arrow-row">
+              <span className="arrow-col"></span>
+              <span className="arrow-col">
+                <button disabled={!shiftVerticalAllowed()}>
+                  ↑
+                </button>
+              </span>
+              <span className="arrow-col"></span>
+            </span>
+            <span className="arrow-row">
+              <span className="arrow-col">
+                <button disabled={!shiftHorizontalAllowed()}>
+                  ←
+                </button>
+              </span>
+              <span className="arrow-col">
+                <button disabled={!shiftVerticalAllowed()}>
+                  ↓
+                </button>
+              </span>
+              <span className="arrow-col">
+                <button disabled={!shiftHorizontalAllowed()}>
+                  →
+                </button>
+              </span>
+            </span>
+          </div>
           <span className="version-container">
             <span className="version-text" title={VERSION_TEXT_TITLE}>
               {VERSION_TEXT}
