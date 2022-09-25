@@ -19,12 +19,14 @@ const rowData = data.map(([l, r]) => `${l}${r}`);
 const range = (size: number) => [...Array(size).keys()];
 
 enum SelectMode {
-  HIGHLIGHT,
+  HIGHLIGHT_1,
+  HIGHLIGHT_2,
   HIDE,
 }
 
 enum LocalStorageKey {
-  HIGHLIGHTS = 'highlights',
+  HIGHLIGHTS_1 = 'highlights',
+  HIGHLIGHTS_2 = 'highlights2',
   HIDDEN = 'hidden',
   ROW_ORDER = 'rowOrder',
   COL_ORDER = 'colOrder',
@@ -34,7 +36,7 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.4.1 / DAS#0437';
+const VERSION_TEXT = 'v0.4.2 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -42,10 +44,11 @@ const App = () => {
   const [trueRows, setTrueRows] = useState(rows);
   const [rowOrder, setRowOrder] = useState(range(11));
   const [colOrder, setColOrder] = useState(range(37));
-  const [highlights, setHighlights] = useState(new Set<string>());
+  const [highlights1, setHighlights1] = useState(new Set<string>());
+  const [highlights2, setHighlights2] = useState(new Set<string>());
   const [hidden, setHidden] = useState(new Set<string>());
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(37).map(n => [n, 0])));
-  const [selectMode, setSelectMode] = useState(SelectMode.HIGHLIGHT);
+  const [selectMode, setSelectMode] = useState(SelectMode.HIGHLIGHT_1);
 
   const [swapRowFrom, setSwapRowFrom] = useState('');
   const [swapRowTo, setSwapRowTo] = useState('');
@@ -119,11 +122,14 @@ const App = () => {
 
     const colOffset = colOffsets[col];
     const key = getCellKey((row + colOffset) % 10, col);
-    const isHighlighted = highlights.has(key);
+    const isHighlighted1 = highlights1.has(key);
+    const isHighlighted2 = highlights2.has(key);
     const isHidden = hidden.has(key);
 
     return [
-      isHighlighted ? 'highlight' : (isHidden ? 'hidden' : ''),
+      isHighlighted1 ? 'highlight-1' : '',
+      isHighlighted2 ? 'highlight-2' : '',
+      isHidden ? 'hidden' : '',
       showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
       showMatchingLettersBetweenSides ? getMatchingCellStyle(trueRow, trueCol) : '',
       showVowels && isVowel(cell) ? 'cell-vowel' : '',
@@ -172,34 +178,51 @@ const App = () => {
     const colOffset = colOffsets[col];
     const key = getCellKey((row + colOffset) % 10, col);
 
-    const newHighlights = new Set(highlights);
+    const newHighlights1 = new Set(highlights1);
+    const newHighlights2 = new Set(highlights2);
     const newHidden = new Set(hidden);
 
-    if (selectMode === SelectMode.HIGHLIGHT) {
-      if (newHighlights.has(key)) {
-        newHighlights.delete(key);
+    if (selectMode === SelectMode.HIGHLIGHT_1) {
+      if (newHighlights1.has(key)) {
+        newHighlights1.delete(key);
       } else {
-        newHighlights.add(key);
+        newHighlights1.add(key);
       }
+
+      newHighlights2.delete(key);
       newHidden.delete(key);
-    } else {
+    } else if (selectMode === SelectMode.HIGHLIGHT_2) {
+      if (newHighlights2.has(key)) {
+        newHighlights2.delete(key);
+      } else {
+        newHighlights2.add(key);
+      }
+
+      newHighlights1.delete(key);
+      newHidden.delete(key);
+    } else if (selectMode === SelectMode.HIDE) {
       if (newHidden.has(key)) {
         newHidden.delete(key);
       } else {
         newHidden.add(key);
       }
-      newHighlights.delete(key);
+
+      newHighlights1.delete(key);
+      newHighlights2.delete(key);
     }
 
-    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS, JSON.stringify(Array.from(newHighlights)));
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_1, JSON.stringify(Array.from(newHighlights1)));
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_2, JSON.stringify(Array.from(newHighlights2)));
     window.localStorage.setItem(LocalStorageKey.HIDDEN, JSON.stringify(Array.from(newHidden)));
 
-    setHighlights(newHighlights);
+    setHighlights1(newHighlights1);
+    setHighlights2(newHighlights2);
     setHidden(newHidden);
   };
 
   useEffect(() => {
-    const localHighlights = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS);
+    const localHighlights1 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_1);
+    const localHighlights2 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_1);
     const localHidden = window.localStorage.getItem(LocalStorageKey.HIDDEN);
     const localRowOrder = window.localStorage.getItem(LocalStorageKey.ROW_ORDER);
     const localColOrder = window.localStorage.getItem(LocalStorageKey.COL_ORDER);
@@ -208,8 +231,12 @@ const App = () => {
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
     const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
 
-    if (localHighlights) {
-      setHighlights(new Set(JSON.parse(localHighlights)));
+    if (localHighlights1) {
+      setHighlights1(new Set(JSON.parse(localHighlights1)));
+    }
+
+    if (localHighlights2) {
+      setHighlights2(new Set(JSON.parse(localHighlights2)));
     }
 
     if (localHidden) {
@@ -347,9 +374,11 @@ const App = () => {
   };
 
   const resetHighlights = (): void => {
-    setHighlights(new Set());
+    setHighlights1(new Set());
+    setHighlights2(new Set());
     setHidden(new Set());
-    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS);
+    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_1);
+    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_2);
     window.localStorage.removeItem(LocalStorageKey.HIDDEN);
   };
 
@@ -404,7 +433,7 @@ const App = () => {
 
   const resetColsDisabled = (): boolean => colOrder.toString() === range(37).toString();
 
-  const resetHighlightsDisabled = (): boolean => highlights.size === 0 && hidden.size === 0;
+  const resetHighlightsDisabled = (): boolean => highlights1.size === 0 && highlights2.size === 0 && hidden.size === 0;
 
   const resetOffsetsDisabled = (): boolean => Object.values(colOffsets).every(offset => offset === 0);
 
@@ -567,16 +596,24 @@ const App = () => {
           <label>
             <input
               type="radio"
-              checked={selectMode === SelectMode.HIGHLIGHT}
-              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIGHLIGHT : SelectMode.HIDE)}
+              checked={selectMode === SelectMode.HIGHLIGHT_1}
+              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIGHLIGHT_1 : SelectMode.HIDE)}
             />
-            Highlight
+            Highlight 1
+          </label>
+          <label>
+            <input
+              type="radio"
+              checked={selectMode === SelectMode.HIGHLIGHT_2}
+              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIGHLIGHT_2 : SelectMode.HIDE)}
+            />
+            Highlight 2
           </label>
           <label>
             <input
               type="radio"
               checked={selectMode === SelectMode.HIDE}
-              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIDE : SelectMode.HIGHLIGHT)}
+              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIDE : SelectMode.HIGHLIGHT_1)}
             />
             Hide
           </label>

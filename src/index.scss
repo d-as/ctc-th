@@ -126,7 +126,7 @@ td {
     }
   }
 
-  &.highlight {
+  &.highlight-1 {
     background-color: hsl(350, 100%, 88%);
 
     &:hover {
@@ -138,6 +138,22 @@ td {
 
       &:hover {
         background-color: hsl(350, 100%, 78%);
+      }
+    }
+  }
+
+  &.highlight-2 {
+    background-color: hsl(250, 100%, 88%);
+
+    &:hover {
+      background-color: hsl(250, 100%, 83%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(250, 100%, 83%);
+
+      &:hover {
+        background-color: hsl(250, 100%, 78%);
       }
     }
   }
