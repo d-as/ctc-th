@@ -239,11 +239,11 @@ td {
 
 .reset-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: 8px;
 
   button {
-    width: 200px;
+    min-width: 200px;
   }
 }
 
@@ -321,6 +321,10 @@ td {
   color: white;
 }
 
+.hint-text {
+  font-size: 11pt;
+}
+
 .spacer {
   height: 1rem;
 }
@@ -332,4 +336,30 @@ td {
 
 .hide {
   color: black;
+}
+
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+
+  .col:first-child {
+    width: 33%;
+  }
+
+  .col:last-child {
+    width: 33%;
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-gap {
+  gap: 8px;
+}
+
+.flex-end {
+  justify-content: flex-end;
 }

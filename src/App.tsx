@@ -40,7 +40,7 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.4.4 / DAS#0437';
+const VERSION_TEXT = 'v0.4.5 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -622,96 +622,104 @@ const App = () => {
           </tr>
         </tfoot>
       </table>
-      <span className="white">
-        Click row/column labels to select them
-      </span>
-      <div className="option-row">
-        <button
-          onClick={() => swapRows()}
-          disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
-        >
-          Swap rows
-        </button>
-        <button
-          onClick={() => swapCols()}
-          disabled={!swapColFrom.trim() || !swapColTo.trim()}
-        >
-          Swap columns
-        </button>
+      <div className="footer-container">
+        <div className="col">
+          <div className="options-container">
+            <span className="option-row">
+              Cell highlight mode
+            </span>
+            <span className="option-row">
+              <table className="black-borders">
+                <tbody>
+                  <tr>
+                    {range(4).map(n => (
+                      <td
+                        key={`highlight-option-${n + 1}`}
+                        className={`highlight-${n + 1} check-mark`}
+                        onClick={() => setHighlightMode(n)}
+                      >
+                        {highlightMode === n ? '✔' : ''}
+                      </td>
+                    ))}
+                    <td
+                      className={`hide ${highlightMode === HighlightMode.HIDE ? 'check-mark' : ''}`}
+                      onClick={() => setHighlightMode(HighlightMode.HIDE)}
+                    >
+                      {highlightMode === HighlightMode.HIDE ? '✔' : 'Hide'}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </span>
+            <div className="spacer"></div>
+            <span className="option-row">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showMatchingLettersBetweenSides}
+                  onChange={e => changeShowMatchingLettersBetweenSides(e.target.checked)}
+                />
+                Show matching letters between sides
+              </label>
+            </span>
+            <span className="option-row">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showSameLettersOnHover}
+                  onChange={e => changeShowSameLettersOnHover(e.target.checked)}
+                />
+                Show same letters on hover
+              </label>
+            </span>
+            <span className="option-row">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showVowels}
+                  onChange={e => changeShowVowels(e.target.checked)}
+                />
+                Show vowels
+              </label>
+            </span>
+          </div>
+        </div>
+        <div className="col flex-gap">
+          <span className="white hint-text">
+            Click row/column labels to select them
+          </span>
+          <div className="option-row">
+            <button
+              onClick={() => swapRows()}
+              disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
+            >
+              Swap rows
+            </button>
+            <button
+              onClick={() => swapCols()}
+              disabled={!swapColFrom.trim() || !swapColTo.trim()}
+            >
+              Swap columns
+            </button>
+          </div>
+          <div className="option-row">
+            <button
+              onClick={() => clearSelectedRowsAndCols()}
+              disabled={!swapRowFrom && !swapRowTo && !swapColFrom && !swapColTo}
+              className="wide-button"
+            >
+              Clear selected rows/columns
+            </button>
+          </div>
+        </div>
+        <div className="col flex-end">
+          <span className="version-container">
+            <span className="version-text" title={VERSION_TEXT_TITLE}>
+              {VERSION_TEXT}
+            </span>
+          </span>
+        </div>
       </div>
-      <div className="option-row">
-        <button
-          onClick={() => clearSelectedRowsAndCols()}
-          disabled={!swapRowFrom && !swapRowTo && !swapColFrom && !swapColTo}
-          className="wide-button"
-        >
-          Clear selected rows/columns
-        </button>
-      </div>
-      <div className="options-container">
-        <span className="option-row">
-          Cell highlight mode
-        </span>
-        <span className="option-row">
-          <table className="black-borders">
-            <tbody>
-              <tr>
-                {range(4).map(n => (
-                  <td
-                    key={`highlight-option-${n + 1}`}
-                    className={`highlight-${n + 1} check-mark`}
-                    onClick={() => setHighlightMode(n)}
-                  >
-                    {highlightMode === n ? '✔' : ''}
-                  </td>
-                ))}
-                <td
-                  className={`hide ${highlightMode === HighlightMode.HIDE ? 'check-mark' : ''}`}
-                  onClick={() => setHighlightMode(HighlightMode.HIDE)}
-                >
-                  {highlightMode === HighlightMode.HIDE ? '✔' : 'Hide'}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </span>
-        <div className="spacer"></div>
-        <span className="option-row">
-          <label>
-            <input
-              type="checkbox"
-              checked={showMatchingLettersBetweenSides}
-              onChange={e => changeShowMatchingLettersBetweenSides(e.target.checked)}
-            />
-            Show matching letters between sides
-          </label>
-        </span>
-        <span className="option-row">
-          <label>
-            <input
-              type="checkbox"
-              checked={showSameLettersOnHover}
-              onChange={e => changeShowSameLettersOnHover(e.target.checked)}
-            />
-            Show same letters on hover
-          </label>
-        </span>
-        <span className="option-row">
-          <label>
-            <input
-              type="checkbox"
-              checked={showVowels}
-              onChange={e => changeShowVowels(e.target.checked)}
-            />
-            Show vowels
-          </label>
-        </span>
-      </div>
-      <span className="version-container">
-        <span className="version-text" title={VERSION_TEXT_TITLE}>
-          {VERSION_TEXT}
-        </span>
-      </span>
     </div>
   );
 };
