@@ -40,7 +40,7 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.4.2 / DAS#0437';
+const VERSION_TEXT = 'v0.4.3 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
