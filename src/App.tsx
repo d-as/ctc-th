@@ -18,7 +18,7 @@ const rowData = data.map(([l, r]) => `${l}${r}`);
 
 const range = (size: number) => [...Array(size).keys()];
 
-enum SelectMode {
+enum HighlightMode {
   HIGHLIGHT_1,
   HIGHLIGHT_2,
   HIGHLIGHT_3,
@@ -40,7 +40,7 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.4.3 / DAS#0437';
+const VERSION_TEXT = 'v0.4.4 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -54,7 +54,7 @@ const App = () => {
   const [highlights4, setHighlights4] = useState(new Set<string>());
   const [hidden, setHidden] = useState(new Set<string>());
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(37).map(n => [n, 0])));
-  const [selectMode, setSelectMode] = useState(SelectMode.HIGHLIGHT_1);
+  const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_1);
 
   const [swapRowFrom, setSwapRowFrom] = useState('');
   const [swapRowTo, setSwapRowTo] = useState('');
@@ -194,7 +194,7 @@ const App = () => {
     const newHighlights4 = new Set(highlights4);
     const newHidden = new Set(hidden);
 
-    if (selectMode === SelectMode.HIGHLIGHT_1) {
+    if (highlightMode === HighlightMode.HIGHLIGHT_1) {
       if (newHighlights1.has(key)) {
         newHighlights1.delete(key);
       } else {
@@ -205,7 +205,7 @@ const App = () => {
       newHighlights3.delete(key);
       newHighlights4.delete(key);
       newHidden.delete(key);
-    } else if (selectMode === SelectMode.HIGHLIGHT_2) {
+    } else if (highlightMode === HighlightMode.HIGHLIGHT_2) {
       if (newHighlights2.has(key)) {
         newHighlights2.delete(key);
       } else {
@@ -216,7 +216,7 @@ const App = () => {
       newHighlights3.delete(key);
       newHighlights4.delete(key);
       newHidden.delete(key);
-    } else if (selectMode === SelectMode.HIGHLIGHT_3) {
+    } else if (highlightMode === HighlightMode.HIGHLIGHT_3) {
       if (newHighlights3.has(key)) {
         newHighlights3.delete(key);
       } else {
@@ -227,7 +227,7 @@ const App = () => {
       newHighlights2.delete(key);
       newHighlights4.delete(key);
       newHidden.delete(key);
-    } else if (selectMode === SelectMode.HIGHLIGHT_4) {
+    } else if (highlightMode === HighlightMode.HIGHLIGHT_4) {
       if (newHighlights4.has(key)) {
         newHighlights4.delete(key);
       } else {
@@ -238,7 +238,7 @@ const App = () => {
       newHighlights2.delete(key);
       newHighlights3.delete(key);
       newHidden.delete(key);
-    } else if (selectMode === SelectMode.HIDE) {
+    } else if (highlightMode === HighlightMode.HIDE) {
       if (newHidden.has(key)) {
         newHidden.delete(key);
       } else {
@@ -650,7 +650,7 @@ const App = () => {
       </div>
       <div className="options-container">
         <span className="option-row">
-          Cell selection mode
+          Cell highlight mode
         </span>
         <span className="option-row">
           <table className="black-borders">
@@ -660,16 +660,16 @@ const App = () => {
                   <td
                     key={`highlight-option-${n + 1}`}
                     className={`highlight-${n + 1} check-mark`}
-                    onClick={() => setSelectMode(n)}
+                    onClick={() => setHighlightMode(n)}
                   >
-                    {selectMode === n ? '✔' : ''}
+                    {highlightMode === n ? '✔' : ''}
                   </td>
                 ))}
                 <td
-                  className={`hide ${selectMode === SelectMode.HIDE ? 'check-mark' : ''}`}
-                  onClick={() => setSelectMode(SelectMode.HIDE)}
+                  className={`hide ${highlightMode === HighlightMode.HIDE ? 'check-mark' : ''}`}
+                  onClick={() => setHighlightMode(HighlightMode.HIDE)}
                 >
-                  {selectMode === SelectMode.HIDE ? '✔' : 'Hide'}
+                  {highlightMode === HighlightMode.HIDE ? '✔' : 'Hide'}
                 </td>
               </tr>
             </tbody>
