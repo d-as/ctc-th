@@ -23,7 +23,7 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.4 / DAS#0437';
+const VERSION_TEXT = 'v0.3.5 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -290,11 +290,19 @@ const App = () => {
     window.localStorage.removeItem('colOffsets');
   };
 
+  const resetInputs = (): void => {
+    setSwapRowFrom('');
+    setSwapRowTo('');
+    setSwapColFrom('');
+    setSwapColTo('');
+  };
+
   const resetAll = (): void => {
     resetRows();
     resetCols();
     resetHighlights();
     resetOffsets();
+    resetInputs();
   };
 
   const getOffsetStyle = (offset: number): string => {
@@ -309,22 +317,67 @@ const App = () => {
     setShowSameLettersOnHover(show);
   };
 
+  const resetRowsDisabled = (): boolean => rowOrder.toString() === range(11).toString();
+
+  const resetColsDisabled = (): boolean => colOrder.toString() === range(37).toString();
+
+  const resetHighlightsDisabled = (): boolean => highlights.size === 0 && hidden.size === 0;
+
+  const resetOffsetsDisabled = (): boolean => Object.values(colOffsets).every(offset => offset === 0);
+
+  const allInputsEmpty = (): boolean => {
+    return [
+      swapRowFrom,
+      swapRowTo,
+      swapColFrom,
+      swapColTo,
+    ]
+      .every(t => !t);
+  };
+
+  const resetAllDisabled = (): boolean => {
+    return [
+      resetRowsDisabled(),
+      resetColsDisabled(),
+      resetHighlightsDisabled(),
+      resetOffsetsDisabled(),
+      allInputsEmpty(),
+    ]
+      .every(t => t);
+  };
+
   return (
     <div className="App">
       <span className="reset-container">
-        <button onClick={() => resetRows()}>
+        <button
+          onClick={() => resetRows()}
+          disabled={resetRowsDisabled()}
+        >
           Reset rows
         </button>
-        <button onClick={() => resetCols()}>
+        <button
+          onClick={() => resetCols()}
+          disabled={resetColsDisabled()}
+        >
           Reset columns
         </button>
-        <button className="danger" onClick={() => resetAll()}>
+        <button
+          className="danger"
+          onClick={() => resetAll()}
+          disabled={resetAllDisabled()}
+        >
           Reset all
         </button>
-        <button onClick={() => resetHighlights()}>
+        <button
+          onClick={() => resetHighlights()}
+          disabled={resetHighlightsDisabled()}
+        >
           Reset highlights
         </button>
-        <button onClick={() => resetOffsets()}>
+        <button
+          onClick={() => resetOffsets()}
+          disabled={resetOffsetsDisabled()}
+        >
           Reset offsets
         </button>
       </span>
@@ -399,40 +452,58 @@ const App = () => {
       </table>
       <div className="swap">
         <span className="swap-gap">
-          <button onClick={() => clearSwapRowInputs()}>
+          <button
+            onClick={() => clearSwapRowInputs()}
+            disabled={!swapRowFrom && !swapRowTo}
+          >
             Clear inputs
           </button>
           <input
             value={swapRowFrom}
             onChange={e => setSwapRowFrom(e.target.value)}
             maxLength={1}
+            placeholder="Row"
           />
+          ⇄
           <input
             value={swapRowTo}
             onChange={e => setSwapRowTo(e.target.value)}
             maxLength={1}
+            placeholder="Row"
           />
-          <button onClick={() => swapRows()} >
+          <button
+            onClick={() => swapRows()}
+            disabled={!swapRowFrom.trim() || !swapRowTo.trim()}
+          >
             Swap rows
           </button>
         </span>
       </div>
       <div className="swap">
         <span className="swap-gap">
-          <button onClick={() => clearSwapColInputs()}>
+          <button
+            onClick={() => clearSwapColInputs()}
+            disabled={!swapColFrom && !swapColTo}
+          >
             Clear inputs
           </button>
           <input
             value={swapColFrom}
             onChange={e => setSwapColFrom(e.target.value)}
             maxLength={2}
+            placeholder="Column"
           />
+          ⇄
           <input
             value={swapColTo}
             onChange={e => setSwapColTo(e.target.value)}
             maxLength={2}
+            placeholder="Column"
           />
-          <button onClick={() => swapCols()} >
+          <button
+            onClick={() => swapCols()}
+            disabled={!swapColFrom.trim() || !swapColTo.trim()}
+          >
             Swap columns
           </button>
         </span>

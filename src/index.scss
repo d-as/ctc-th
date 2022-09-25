@@ -49,10 +49,25 @@ button {
 
   &:hover {
     border-color: #646cff;
+
+    &:disabled {
+      border-color: #777;
+    }
   }
 
-  &.danger:hover {
-    border-color: #EEE;
+  &.danger {
+    &:hover {
+      border-color: #EEE;
+    }
+
+    &:disabled {
+      color: pink;
+    }
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: #777;
   }
 }
 
