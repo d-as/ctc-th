@@ -23,7 +23,7 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.6 / DAS#0437';
+const VERSION_TEXT = 'v0.3.7 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
