@@ -41,6 +41,7 @@ const App = () => {
   const [swapColTo, setSwapColTo] = useState('');
 
   const [showSameLettersOnHover, setShowSameLettersOnHover] = useState(false);
+  const [showMatchingLettersBetweenSides, setShowMatchingLettersBetweenSides] = useState(false);
   const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
 
   const indexToLetter = (row: number): string => {
@@ -66,16 +67,25 @@ const App = () => {
     return [indexToLetter(row), col].join(',');
   };
 
+  const getActiveCellStyle = (row: number, col: number, cell: string): string => {
+    return (row !== 0 || col !== 0) && (
+      swapColFrom === cell || swapColTo === cell ||
+      swapRowFrom.toUpperCase() === cell || swapRowTo.toUpperCase() === cell
+    ) ? 'cell-swap-active' : '';
+  };
+
+  const getMatchingCellStyle = (row: number, col: number, cell: string): string => {
+    const oppositeCell = getCell(row, col < 19 ? col + 18 : col - 18);
+    return cell === oppositeCell ? 'cell-matching' : '';
+  };
+
   const getCellStyle = (row: number, col: number): string => {
     const cell = getCell(row, col);
 
     if (row === 0 || col === 0) {
       return [
         'cursor-pointer',
-        !(row === 0 && col === 0) && (
-          swapColFrom === cell || swapColTo === cell ||
-          swapRowFrom.toUpperCase() === cell || swapRowTo.toUpperCase() === cell
-        ) ? 'cell-swap-active' : '',
+        getActiveCellStyle(row, col, cell),
       ]
         .join(' ')
     }
@@ -88,6 +98,7 @@ const App = () => {
     return [
       isHighlighted ? 'highlight' : (isHidden ? 'hidden' : ''),
       showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
+      showMatchingLettersBetweenSides ? getMatchingCellStyle(row, col, cell) : '',
     ]
       .join(' ');
   };
@@ -323,6 +334,10 @@ const App = () => {
     setShowSameLettersOnHover(show);
   };
 
+  const changeShowMatchingLettersBetweenSides = (show: boolean): void => {
+    setShowMatchingLettersBetweenSides(show);
+  };
+
   const resetRowsDisabled = (): boolean => rowOrder.toString() === range(11).toString();
 
   const resetColsDisabled = (): boolean => colOrder.toString() === range(37).toString();
@@ -532,15 +547,27 @@ const App = () => {
           Hide
         </label>
       </div>
-      <div className="option-row">
-        <label>
-          <input
-            type="checkbox"
-            checked={showSameLettersOnHover}
-            onChange={e => changeShowSameLettersOnHover(e.target.checked)}
-          />
-          Show same letters on hover
-        </label>
+      <div className="options-container">
+        <span className="option-row">
+          <label>
+            <input
+              type="checkbox"
+              checked={showSameLettersOnHover}
+              onChange={e => changeShowSameLettersOnHover(e.target.checked)}
+            />
+            Show same letters on hover
+          </label>
+        </span>
+        <span className="option-row">
+          <label>
+            <input
+              type="checkbox"
+              checked={showMatchingLettersBetweenSides}
+              onChange={e => changeShowMatchingLettersBetweenSides(e.target.checked)}
+            />
+            Show matching letters between sides
+          </label>
+        </span>
       </div>
       <span className="version-container">
         <span className="version-text" title={VERSION_TEXT_TITLE}>

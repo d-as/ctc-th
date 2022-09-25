@@ -102,6 +102,18 @@ td {
     }
   }
 
+  &.cell-matching {
+    background-color: hsl(120, 25%, 80%);
+  
+    &:hover {
+      background-color: hsl(120, 25%, 85%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(120, 25%, 75%);
+    }
+  }
+
   &.highlight {
     background-color: hsl(350, 100%, 88%);
 
@@ -228,6 +240,12 @@ td {
 
 .offset-faded {
   color: #777;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .option-row {
