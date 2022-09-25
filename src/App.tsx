@@ -23,7 +23,7 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.3 / DAS#0437';
+const VERSION_TEXT = 'v0.3.4 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -67,11 +67,19 @@ const App = () => {
   };
 
   const getCellStyle = (row: number, col: number): string => {
+    const cell = getCell(row, col);
+
     if (row === 0 || col === 0) {
-      return 'cursor-pointer';
+      return [
+        'cursor-pointer',
+        !(row === 0 && col === 0) && (
+          swapColFrom === cell || swapColTo === cell ||
+          swapRowFrom.toUpperCase() === cell || swapRowTo.toUpperCase() === cell
+        ) ? 'cell-swap-active' : '',
+      ]
+        .join(' ')
     }
 
-    const cell = getCell(row, col);
     const colOffset = colOffsets[col];
     const key = getCellKey((row + colOffset) % 10, col);
     const isHighlighted = highlights.has(key);
@@ -88,13 +96,21 @@ const App = () => {
     const cell = getCell(row, col);
 
     if (row === 0) {
-      if (!swapColFrom.trim() && cell !== swapColTo) {
+      if (swapColFrom.trim() === cell) {
+        setSwapColFrom('');
+      } else if (swapColTo.trim() === cell) {
+        setSwapColTo('');
+      } else if (!swapColFrom.trim() && cell !== swapColTo) {
         setSwapColFrom(cell);
       } else if (!swapColTo.trim() && cell !== swapColFrom) {
         setSwapColTo(cell);
       }
     } else if (col === 0) {
-      if (!swapRowFrom.trim() && cell !== swapRowTo) {
+      if (swapRowFrom.trim().toUpperCase() === cell) {
+        setSwapRowFrom('');
+      } else if (swapRowTo.trim().toUpperCase() === cell) {
+        setSwapRowTo('');
+      } else if (!swapRowFrom.trim() && cell !== swapRowTo) {
         setSwapRowFrom(cell);
       } else if (!swapRowTo.trim() && cell !== swapRowFrom) {
         setSwapRowTo(cell);
@@ -352,7 +368,7 @@ const App = () => {
                     (row === 0 || col === 0) && (row !== rowIndex || col != colIndex) ? 'cell-changed' : '',
                     row === 0 ? 'border-bottom-bold' : '',
                     col === 0 ? 'border-right-bold' : '',
-                    col === 19 ? 'border-left-bold' : '',
+                    colIndex === 19 ? 'border-left-bold' : '',
                     getCellStyle(row, col),
                   ]
                     .join(' ')

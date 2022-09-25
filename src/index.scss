@@ -160,11 +160,23 @@ td {
   }
 }
 
+.cell-swap-active {
+  background-color: #BBB;
+
+  &:hover {
+    background-color: #DDD;
+  }
+}
+
 .cell-changed {
   background-color: hsl(180, 100%, 75%);
 
   &:hover {
     background-color: hsl(180, 100%, 50%);
+  }
+
+  &.cell-swap-active {
+    background-color: hsl(180, 100%, 40%);
   }
 }
 
