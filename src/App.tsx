@@ -39,16 +39,11 @@ enum LocalStorageKey {
   SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
   SHOW_MATCHING_LETTERS = 'showMatchingLetters',
   SHOW_VOWELS = 'showVowels',
+  VERSION = 'version',
 }
 
-enum Direction {
-  UP = 'up',
-  DOWN = 'down',
-  LEFT = 'left',
-  RIGHT = 'right',
-}
-
-const VERSION_TEXT = 'v0.5.0 / DAS#0437';
+const VERSION = 'v0.5.1'
+const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -146,7 +141,7 @@ const App = () => {
     }
 
     const colOffset = colOffsets[col];
-    const key = getCellKey((row + colOffset) % 10, col);
+    const key = getCellKey((row + colOffset) % 11, col);
     const isHighlighted1 = highlights1.has(key);
     const isHighlighted2 = highlights2.has(key);
     const isHighlighted3 = highlights3.has(key);
@@ -218,7 +213,7 @@ const App = () => {
     }
 
     const colOffset = colOffsets[col];
-    const key = getCellKey((row + colOffset) % 10, col);
+    const key = getCellKey((row + colOffset) % 11, col);
 
     const newHighlights1 = new Set(highlights1);
     const newHighlights2 = new Set(highlights2);
@@ -296,6 +291,18 @@ const App = () => {
     setHidden(newHidden);
   };
 
+  const validateHighlights = (localHighlights: string): boolean => {
+    try {
+      return (JSON.parse(localHighlights) as string[]).every(highlight => {
+        const [row, col] = highlight.split(',');
+        const colNumber = Number(col);
+        return 'ABCDEFGHIJ'.includes(row) && !Number.isNaN(colNumber) && colNumber > 0 && colNumber < 37;
+      });
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     const localHighlights1 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_1);
     const localHighlights2 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_2);
@@ -309,20 +316,21 @@ const App = () => {
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
     const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
+    const localVersion = window.localStorage.getItem(LocalStorageKey.VERSION);
 
-    if (localHighlights1) {
+    if (localHighlights1 && validateHighlights(localHighlights1)) {
       setHighlights1(new Set(JSON.parse(localHighlights1)));
     }
 
-    if (localHighlights2) {
+    if (localHighlights2 && validateHighlights(localHighlights2)) {
       setHighlights2(new Set(JSON.parse(localHighlights2)));
     }
 
-    if (localHighlights3) {
+    if (localHighlights3 && validateHighlights(localHighlights3)) {
       setHighlights3(new Set(JSON.parse(localHighlights3)));
     }
 
-    if (localHighlights4) {
+    if (localHighlights4 && validateHighlights(localHighlights4)) {
       setHighlights4(new Set(JSON.parse(localHighlights4)));
     }
 
@@ -356,6 +364,10 @@ const App = () => {
 
     if (localShowVowels) {
       setShowVowels(JSON.parse(localShowVowels));
+    }
+
+    if (!localVersion || localVersion !== VERSION) {
+      window.localStorage.setItem(LocalStorageKey.VERSION, VERSION);
     }
   }, [])
 
