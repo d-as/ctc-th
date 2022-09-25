@@ -23,11 +23,12 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.7 / DAS#0437';
+const VERSION_TEXT = 'v0.3.8 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
   const [rows, setRows] = useState([...rowData]);
+  const [trueRows, setTrueRows] = useState(rows);
   const [rowOrder, setRowOrder] = useState(range(11));
   const [colOrder, setColOrder] = useState(range(37));
   const [highlights, setHighlights] = useState(new Set<string>());
@@ -63,6 +64,10 @@ const App = () => {
     return rows[row - 1][col - 1];
   };
 
+  const getTrueCell = (trueRow: number, trueCol: number): string => {
+    return trueRows[trueRow - 1][trueCol - 1];
+  };
+
   const getCellKey = (row: number, col: number): string => {
     return [indexToLetter(row), col].join(',');
   };
@@ -74,12 +79,13 @@ const App = () => {
     ) ? 'cell-swap-active' : '';
   };
 
-  const getMatchingCellStyle = (row: number, col: number, cell: string): string => {
-    const oppositeCell = getCell(row, col < 19 ? col + 18 : col - 18);
+  const getMatchingCellStyle = (trueRow: number, trueCol: number): string => {
+    const cell = getTrueCell(trueRow, trueCol);
+    const oppositeCell = getTrueCell(trueRow, trueCol < 19 ? trueCol + 18 : trueCol - 18);
     return cell === oppositeCell ? 'cell-matching' : '';
   };
 
-  const getCellStyle = (row: number, col: number): string => {
+  const getCellStyle = (row: number, col: number, trueRow: number, trueCol: number): string => {
     const cell = getCell(row, col);
 
     if (row === 0 || col === 0) {
@@ -98,7 +104,7 @@ const App = () => {
     return [
       isHighlighted ? 'highlight' : (isHidden ? 'hidden' : ''),
       showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
-      showMatchingLettersBetweenSides ? getMatchingCellStyle(row, col, cell) : '',
+      showMatchingLettersBetweenSides ? getMatchingCellStyle(trueRow, trueCol) : '',
     ]
       .join(' ');
   };
@@ -209,6 +215,17 @@ const App = () => {
 
     setRows(newRows);
   }, [colOffsets]);
+
+  useEffect(() => {
+    const newTrueRows = rowOrder.slice(1).map(row => row - 1).map(row => {
+      return colOrder.slice(1).map(col => col - 1).map(col => {
+        return rows[row][col];
+      })
+        .join('');
+    });
+
+    setTrueRows(newTrueRows);
+  }, [rows, rowOrder, colOrder]);
 
   const swapRows = () => {
     const from = letterToIndex(swapRowFrom.toUpperCase().trim());
@@ -431,19 +448,19 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
-          {rowOrder.map((row, rowIndex) => (
+          {rowOrder.map((row, trueRow) => (
             <tr key={row}>
-              {colOrder.map((col, colIndex) => (
+              {colOrder.map((col, trueCol) => (
               <td
                 key={getCellKey(row, col)}
                 className={
                   [
                     row === 0 || col === 0 ? 'bold' : '',
-                    (row === 0 || col === 0) && (row !== rowIndex || col != colIndex) ? 'cell-changed' : '',
+                    (row === 0 || col === 0) && (row !== trueRow || col != trueCol) ? 'cell-changed' : '',
                     row === 0 ? 'border-bottom-bold' : '',
                     col === 0 ? 'border-right-bold' : '',
-                    colIndex === 19 ? 'border-left-bold' : '',
-                    getCellStyle(row, col),
+                    trueCol === 19 ? 'border-left-bold' : '',
+                    getCellStyle(row, col, trueRow, trueCol),
                   ]
                     .join(' ')
                 }
