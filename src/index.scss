@@ -102,6 +102,18 @@ td {
     }
   }
 
+  &.cell-vowel {
+    background-color: hsl(39, 100%, 80%);
+
+    &:hover {
+      background-color: hsl(39, 100%, 85%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(39, 100%, 65%);
+    }
+  }
+
   &.cell-matching {
     background-color: hsl(120, 25%, 80%);
   

@@ -23,7 +23,18 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.8 / DAS#0437';
+enum LocalStorageKey {
+  HIGHLIGHTS = 'highlights',
+  HIDDEN = 'hidden',
+  ROW_ORDER = 'rowOrder',
+  COL_ORDER = 'colOrder',
+  COL_OFFSETS = 'colOffsets',
+  SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
+  SHOW_MATCHING_LETTERS = 'showMatchingLetters',
+  SHOW_VOWELS = 'showVowels',
+}
+
+const VERSION_TEXT = 'v0.3.9 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -43,6 +54,7 @@ const App = () => {
 
   const [showSameLettersOnHover, setShowSameLettersOnHover] = useState(false);
   const [showMatchingLettersBetweenSides, setShowMatchingLettersBetweenSides] = useState(false);
+  const [showVowels, setShowVowels] = useState(false);
   const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
 
   const indexToLetter = (row: number): string => {
@@ -85,6 +97,8 @@ const App = () => {
     return cell === oppositeCell ? 'cell-matching' : '';
   };
 
+  const isVowel = (cell: string): boolean => 'AEIOU'.includes(cell);
+
   const getCellStyle = (row: number, col: number, trueRow: number, trueCol: number): string => {
     const cell = getCell(row, col);
 
@@ -105,6 +119,7 @@ const App = () => {
       isHighlighted ? 'highlight' : (isHidden ? 'hidden' : ''),
       showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
       showMatchingLettersBetweenSides ? getMatchingCellStyle(trueRow, trueCol) : '',
+      showVowels && isVowel(cell) ? 'cell-vowel' : '',
     ]
       .join(' ');
   };
@@ -169,19 +184,22 @@ const App = () => {
       newHighlights.delete(key);
     }
 
-    window.localStorage.setItem('highlights', JSON.stringify(Array.from(newHighlights)));
-    window.localStorage.setItem('hidden', JSON.stringify(Array.from(newHidden)));
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS, JSON.stringify(Array.from(newHighlights)));
+    window.localStorage.setItem(LocalStorageKey.HIDDEN, JSON.stringify(Array.from(newHidden)));
 
     setHighlights(newHighlights);
     setHidden(newHidden);
   };
 
   useEffect(() => {
-    const localHighlights = window.localStorage.getItem('highlights');
-    const localHidden = window.localStorage.getItem('hidden');
-    const localRowOrder = window.localStorage.getItem('rowOrder');
-    const localColOrder = window.localStorage.getItem('colOrder');
-    const localColOffsets = window.localStorage.getItem('colOffsets');
+    const localHighlights = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS);
+    const localHidden = window.localStorage.getItem(LocalStorageKey.HIDDEN);
+    const localRowOrder = window.localStorage.getItem(LocalStorageKey.ROW_ORDER);
+    const localColOrder = window.localStorage.getItem(LocalStorageKey.COL_ORDER);
+    const localColOffsets = window.localStorage.getItem(LocalStorageKey.COL_OFFSETS);
+    const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
+    const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
+    const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
 
     if (localHighlights) {
       setHighlights(new Set(JSON.parse(localHighlights)));
@@ -201,6 +219,18 @@ const App = () => {
 
     if (localColOffsets) {
       setColOffsets(JSON.parse(localColOffsets));
+    }
+
+    if (localShowSameLetters) {
+      setShowSameLettersOnHover(JSON.parse(localShowSameLetters));
+    }
+
+    if (localShowMatchingLetters) {
+      setShowMatchingLettersBetweenSides(JSON.parse(localShowMatchingLetters));
+    }
+
+    if (localShowVowels) {
+      setShowVowels(JSON.parse(localShowVowels));
     }
   }, [])
 
@@ -241,7 +271,7 @@ const App = () => {
         return n;
       });
 
-      window.localStorage.setItem('rowOrder', JSON.stringify(newRowOrder));
+      window.localStorage.setItem(LocalStorageKey.ROW_ORDER, JSON.stringify(newRowOrder));
       setRowOrder(newRowOrder);
     }
   };
@@ -260,7 +290,7 @@ const App = () => {
         return n;
       });
 
-      window.localStorage.setItem('colOrder', JSON.stringify(newColOrder));
+      window.localStorage.setItem(LocalStorageKey.COL_ORDER, JSON.stringify(newColOrder));
       setColOrder(newColOrder);
     }
   };
@@ -289,7 +319,7 @@ const App = () => {
 
       newColOffsets[col] = newOffset;
       setColOffsets(newColOffsets);
-      window.localStorage.setItem('colOffsets', JSON.stringify(newColOffsets));
+      window.localStorage.setItem(LocalStorageKey.COL_OFFSETS, JSON.stringify(newColOffsets));
     }
   };
 
@@ -298,30 +328,30 @@ const App = () => {
       const newColOffsets = { ...colOffsets };
       newColOffsets[col] = 0;
       setColOffsets(newColOffsets);
-      window.localStorage.setItem('colOffsets', JSON.stringify(newColOffsets));
+      window.localStorage.setItem(LocalStorageKey.COL_OFFSETS, JSON.stringify(newColOffsets));
     }
   };
 
   const resetRows = (): void => {
     setRowOrder(range(11));
-    window.localStorage.removeItem('rowOrder');
+    window.localStorage.removeItem(LocalStorageKey.ROW_ORDER);
   };
 
   const resetCols = (): void => {
     setColOrder(range(37));
-    window.localStorage.removeItem('colOrder');
+    window.localStorage.removeItem(LocalStorageKey.COL_ORDER);
   };
 
   const resetHighlights = (): void => {
     setHighlights(new Set());
     setHidden(new Set());
-    window.localStorage.removeItem('highlights');
-    window.localStorage.removeItem('hidden');
+    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS);
+    window.localStorage.removeItem(LocalStorageKey.HIDDEN);
   };
 
   const resetOffsets = (): void => {
     setColOffsets(Object.fromEntries(range(37).map(n => [n, 0])));
-    window.localStorage.removeItem('colOffsets');
+    window.localStorage.removeItem(LocalStorageKey.COL_OFFSETS);
   };
 
   const resetInputs = (): void => {
@@ -349,10 +379,17 @@ const App = () => {
 
   const changeShowSameLettersOnHover = (show: boolean): void => {
     setShowSameLettersOnHover(show);
+    window.localStorage.setItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER, JSON.stringify(show));
   };
 
   const changeShowMatchingLettersBetweenSides = (show: boolean): void => {
     setShowMatchingLettersBetweenSides(show);
+    window.localStorage.setItem(LocalStorageKey.SHOW_MATCHING_LETTERS, JSON.stringify(show));
+  };
+
+  const changeShowVowels = (show: boolean): void => {
+    setShowVowels(show);
+    window.localStorage.setItem(LocalStorageKey.SHOW_VOWELS, JSON.stringify(show));
   };
 
   const resetRowsDisabled = (): boolean => rowOrder.toString() === range(11).toString();
@@ -583,6 +620,16 @@ const App = () => {
               onChange={e => changeShowMatchingLettersBetweenSides(e.target.checked)}
             />
             Show matching letters between sides
+          </label>
+        </span>
+        <span className="option-row">
+          <label>
+            <input
+              type="checkbox"
+              checked={showVowels}
+              onChange={e => changeShowVowels(e.target.checked)}
+            />
+            Show vowels
           </label>
         </span>
       </div>
