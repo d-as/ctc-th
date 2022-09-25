@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.scss'
 
 const data = [
@@ -23,7 +23,7 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.2 / DAS#0437';
+const VERSION_TEXT = 'v0.3.3 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -68,7 +68,7 @@ const App = () => {
 
   const getCellStyle = (row: number, col: number): string => {
     if (row === 0 || col === 0) {
-      return ''
+      return 'cursor-pointer';
     }
 
     const cell = getCell(row, col);
@@ -84,9 +84,28 @@ const App = () => {
       .join(' ');
   };
 
-  const highlightCell = (row: number, col: number): void => {
+  const headerClicked = (row: number, col: number): void => {
+    const cell = getCell(row, col);
+
+    if (row === 0) {
+      if (!swapColFrom.trim() && cell !== swapColTo) {
+        setSwapColFrom(cell);
+      } else if (!swapColTo.trim() && cell !== swapColFrom) {
+        setSwapColTo(cell);
+      }
+    } else if (col === 0) {
+      if (!swapRowFrom.trim() && cell !== swapRowTo) {
+        setSwapRowFrom(cell);
+      } else if (!swapRowTo.trim() && cell !== swapRowFrom) {
+        setSwapRowTo(cell);
+      }
+    }
+  };
+
+  const cellClicked = (row: number, col: number): void => {
     if (row === 0 || col === 0) {
-      return
+      headerClicked(row, col);
+      return;
     }
 
     const colOffset = colOffsets[col];
@@ -338,7 +357,7 @@ const App = () => {
                   ]
                     .join(' ')
                 }
-                onClick={() => highlightCell(row, col)}
+                onClick={() => cellClicked(row, col)}
                 onMouseEnter={() => hoverCell(row, col, true)}
                 onMouseLeave={() => hoverCell(row, col, false)}
               >
@@ -430,8 +449,10 @@ const App = () => {
           Show same letters on hover
         </label>
       </div>
-      <span className="version-container" title={VERSION_TEXT_TITLE}>
-        {VERSION_TEXT}
+      <span className="version-container">
+        <span className="version-text" title={VERSION_TEXT_TITLE}>
+          {VERSION_TEXT}
+        </span>
       </span>
     </div>
   );

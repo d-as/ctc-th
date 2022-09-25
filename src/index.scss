@@ -46,10 +46,14 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
 
-button:hover {
-  border-color: #646cff;
+  &:hover {
+    border-color: #646cff;
+  }
+
+  &.danger:hover {
+    border-color: #EEE;
+  }
 }
 
 button:focus,
@@ -184,11 +188,14 @@ td {
   justify-content: flex-end;
   color: #161616;
   font-size: 10pt;
-  transition: color 0.2s;
-  
-  &:hover {
-    color: #EEE;
+
+  .version-text {
     transition: color 0.2s;
+
+    &:hover {
+      color: #EEE;
+      transition: color 0.2s;
+    }
   }
 }
 
@@ -205,4 +212,8 @@ td {
     display: flex;
     gap: 4px;
   }
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
