@@ -42,7 +42,7 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.5.1'
+const VERSION = 'v0.5.2';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
@@ -291,16 +291,22 @@ const App = () => {
     setHidden(newHidden);
   };
 
-  const validateHighlights = (localHighlights: string): boolean => {
+  const validateHighlights = (localHighlights: string, localStorageKey: LocalStorageKey): boolean => {
     try {
-      return (JSON.parse(localHighlights) as string[]).every(highlight => {
+      const isValid = (JSON.parse(localHighlights) as string[]).every(highlight => {
         const [row, col] = highlight.split(',');
         const colNumber = Number(col);
         return 'ABCDEFGHIJ'.includes(row) && !Number.isNaN(colNumber) && colNumber > 0 && colNumber < 37;
       });
+
+      if (isValid) {
+        return true;
+      }
+      throw new Error();
     } catch {
-      return false;
+      window.localStorage.removeItem(localStorageKey);
     }
+    return false;
   };
 
   useEffect(() => {
@@ -318,19 +324,19 @@ const App = () => {
     const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
     const localVersion = window.localStorage.getItem(LocalStorageKey.VERSION);
 
-    if (localHighlights1 && validateHighlights(localHighlights1)) {
+    if (localHighlights1 && validateHighlights(localHighlights1, LocalStorageKey.HIGHLIGHTS_1)) {
       setHighlights1(new Set(JSON.parse(localHighlights1)));
     }
 
-    if (localHighlights2 && validateHighlights(localHighlights2)) {
+    if (localHighlights2 && validateHighlights(localHighlights2, LocalStorageKey.HIGHLIGHTS_2)) {
       setHighlights2(new Set(JSON.parse(localHighlights2)));
     }
 
-    if (localHighlights3 && validateHighlights(localHighlights3)) {
+    if (localHighlights3 && validateHighlights(localHighlights3, LocalStorageKey.HIGHLIGHTS_3)) {
       setHighlights3(new Set(JSON.parse(localHighlights3)));
     }
 
-    if (localHighlights4 && validateHighlights(localHighlights4)) {
+    if (localHighlights4 && validateHighlights(localHighlights4, LocalStorageKey.HIGHLIGHTS_4)) {
       setHighlights4(new Set(JSON.parse(localHighlights4)));
     }
 
