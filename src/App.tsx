@@ -21,12 +21,16 @@ const range = (size: number) => [...Array(size).keys()];
 enum SelectMode {
   HIGHLIGHT_1,
   HIGHLIGHT_2,
+  HIGHLIGHT_3,
+  HIGHLIGHT_4,
   HIDE,
 }
 
 enum LocalStorageKey {
   HIGHLIGHTS_1 = 'highlights',
   HIGHLIGHTS_2 = 'highlights2',
+  HIGHLIGHTS_3 = 'highlights3',
+  HIGHLIGHTS_4 = 'highlights4',
   HIDDEN = 'hidden',
   ROW_ORDER = 'rowOrder',
   COL_ORDER = 'colOrder',
@@ -46,6 +50,8 @@ const App = () => {
   const [colOrder, setColOrder] = useState(range(37));
   const [highlights1, setHighlights1] = useState(new Set<string>());
   const [highlights2, setHighlights2] = useState(new Set<string>());
+  const [highlights3, setHighlights3] = useState(new Set<string>());
+  const [highlights4, setHighlights4] = useState(new Set<string>());
   const [hidden, setHidden] = useState(new Set<string>());
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(37).map(n => [n, 0])));
   const [selectMode, setSelectMode] = useState(SelectMode.HIGHLIGHT_1);
@@ -124,11 +130,15 @@ const App = () => {
     const key = getCellKey((row + colOffset) % 10, col);
     const isHighlighted1 = highlights1.has(key);
     const isHighlighted2 = highlights2.has(key);
+    const isHighlighted3 = highlights3.has(key);
+    const isHighlighted4 = highlights4.has(key);
     const isHidden = hidden.has(key);
 
     return [
       isHighlighted1 ? 'highlight-1' : '',
       isHighlighted2 ? 'highlight-2' : '',
+      isHighlighted3 ? 'highlight-3' : '',
+      isHighlighted4 ? 'highlight-4' : '',
       isHidden ? 'hidden' : '',
       showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
       showMatchingLettersBetweenSides ? getMatchingCellStyle(trueRow, trueCol) : '',
@@ -180,6 +190,8 @@ const App = () => {
 
     const newHighlights1 = new Set(highlights1);
     const newHighlights2 = new Set(highlights2);
+    const newHighlights3 = new Set(highlights3);
+    const newHighlights4 = new Set(highlights4);
     const newHidden = new Set(hidden);
 
     if (selectMode === SelectMode.HIGHLIGHT_1) {
@@ -190,6 +202,8 @@ const App = () => {
       }
 
       newHighlights2.delete(key);
+      newHighlights3.delete(key);
+      newHighlights4.delete(key);
       newHidden.delete(key);
     } else if (selectMode === SelectMode.HIGHLIGHT_2) {
       if (newHighlights2.has(key)) {
@@ -199,6 +213,30 @@ const App = () => {
       }
 
       newHighlights1.delete(key);
+      newHighlights3.delete(key);
+      newHighlights4.delete(key);
+      newHidden.delete(key);
+    } else if (selectMode === SelectMode.HIGHLIGHT_3) {
+      if (newHighlights3.has(key)) {
+        newHighlights3.delete(key);
+      } else {
+        newHighlights3.add(key);
+      }
+
+      newHighlights1.delete(key);
+      newHighlights2.delete(key);
+      newHighlights4.delete(key);
+      newHidden.delete(key);
+    } else if (selectMode === SelectMode.HIGHLIGHT_4) {
+      if (newHighlights4.has(key)) {
+        newHighlights4.delete(key);
+      } else {
+        newHighlights4.add(key);
+      }
+
+      newHighlights1.delete(key);
+      newHighlights2.delete(key);
+      newHighlights3.delete(key);
       newHidden.delete(key);
     } else if (selectMode === SelectMode.HIDE) {
       if (newHidden.has(key)) {
@@ -209,20 +247,28 @@ const App = () => {
 
       newHighlights1.delete(key);
       newHighlights2.delete(key);
+      newHighlights3.delete(key);
+      newHighlights4.delete(key);
     }
 
     window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_1, JSON.stringify(Array.from(newHighlights1)));
     window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_2, JSON.stringify(Array.from(newHighlights2)));
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_3, JSON.stringify(Array.from(newHighlights3)));
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_4, JSON.stringify(Array.from(newHighlights4)));
     window.localStorage.setItem(LocalStorageKey.HIDDEN, JSON.stringify(Array.from(newHidden)));
 
     setHighlights1(newHighlights1);
     setHighlights2(newHighlights2);
+    setHighlights3(newHighlights3);
+    setHighlights4(newHighlights4);
     setHidden(newHidden);
   };
 
   useEffect(() => {
     const localHighlights1 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_1);
-    const localHighlights2 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_1);
+    const localHighlights2 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_2);
+    const localHighlights3 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_3);
+    const localHighlights4 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_4);
     const localHidden = window.localStorage.getItem(LocalStorageKey.HIDDEN);
     const localRowOrder = window.localStorage.getItem(LocalStorageKey.ROW_ORDER);
     const localColOrder = window.localStorage.getItem(LocalStorageKey.COL_ORDER);
@@ -237,6 +283,14 @@ const App = () => {
 
     if (localHighlights2) {
       setHighlights2(new Set(JSON.parse(localHighlights2)));
+    }
+
+    if (localHighlights3) {
+      setHighlights3(new Set(JSON.parse(localHighlights3)));
+    }
+
+    if (localHighlights4) {
+      setHighlights4(new Set(JSON.parse(localHighlights4)));
     }
 
     if (localHidden) {
@@ -376,9 +430,13 @@ const App = () => {
   const resetHighlights = (): void => {
     setHighlights1(new Set());
     setHighlights2(new Set());
+    setHighlights3(new Set());
+    setHighlights4(new Set());
     setHidden(new Set());
     window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_1);
     window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_2);
+    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_3);
+    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_4);
     window.localStorage.removeItem(LocalStorageKey.HIDDEN);
   };
 
@@ -433,7 +491,9 @@ const App = () => {
 
   const resetColsDisabled = (): boolean => colOrder.toString() === range(37).toString();
 
-  const resetHighlightsDisabled = (): boolean => highlights1.size === 0 && highlights2.size === 0 && hidden.size === 0;
+  const resetHighlightsDisabled = (): boolean => (
+    !highlights1.size && !highlights2.size && !highlights3.size && !highlights4.size && !hidden.size
+  );
 
   const resetOffsetsDisabled = (): boolean => Object.values(colOffsets).every(offset => offset === 0);
 
@@ -593,30 +653,27 @@ const App = () => {
           Cell selection mode
         </span>
         <span className="option-row">
-          <label>
-            <input
-              type="radio"
-              checked={selectMode === SelectMode.HIGHLIGHT_1}
-              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIGHLIGHT_1 : SelectMode.HIDE)}
-            />
-            Highlight 1
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={selectMode === SelectMode.HIGHLIGHT_2}
-              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIGHLIGHT_2 : SelectMode.HIDE)}
-            />
-            Highlight 2
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={selectMode === SelectMode.HIDE}
-              onChange={e => setSelectMode(e.target.checked ? SelectMode.HIDE : SelectMode.HIGHLIGHT_1)}
-            />
-            Hide
-          </label>
+          <table className="black-borders">
+            <tbody>
+              <tr>
+                {range(4).map(n => (
+                  <td
+                    key={`highlight-option-${n + 1}`}
+                    className={`highlight-${n + 1} check-mark`}
+                    onClick={() => setSelectMode(n)}
+                  >
+                    {selectMode === n ? '✔' : ''}
+                  </td>
+                ))}
+                <td
+                  className={`hide ${selectMode === SelectMode.HIDE ? 'check-mark' : ''}`}
+                  onClick={() => setSelectMode(SelectMode.HIDE)}
+                >
+                  {selectMode === SelectMode.HIDE ? '✔' : 'Hide'}
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </span>
         <div className="spacer"></div>
         <span className="option-row">

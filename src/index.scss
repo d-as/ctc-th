@@ -111,6 +111,10 @@ td {
 
     &.hovered-letter-cell {
       background-color: hsl(39, 100%, 65%);
+
+      &:hover {
+        background-color: hsl(39, 100%, 60%);
+      }
     }
   }
 
@@ -123,6 +127,10 @@ td {
 
     &.hovered-letter-cell {
       background-color: hsl(120, 25%, 75%);
+
+      &:hover {
+        background-color: hsl(120, 25%, 70%);
+      }
     }
   }
 
@@ -157,21 +165,45 @@ td {
       }
     }
   }
+
+  &.highlight-3 {
+    background-color: hsl(120, 25%, 80%);
+  
+    &:hover {
+      background-color: hsl(120, 25%, 85%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(120, 25%, 75%);
+
+      &:hover {
+        background-color: hsl(120, 25%, 70%);
+      }
+    }
+  }
+
+  &.highlight-4 {
+    background-color: hsl(39, 100%, 80%);
+
+    &:hover {
+      background-color: hsl(39, 100%, 85%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(39, 100%, 65%);
+
+      &:hover {
+        background-color: hsl(39, 100%, 60%);
+      }
+    }
+  }
   
   &.hidden {
-    color: white;
+    color: rgba(0, 0, 0, 0);
     border-color: black;
 
     &:hover {
       color: #777;
-    }
-
-    &.hovered-letter-cell {
-      color: #DDD;
-  
-      &:hover {
-        color: #777;
-      }
     }
   }
 
@@ -291,4 +323,13 @@ td {
 
 .spacer {
   height: 1rem;
+}
+
+.check-mark {
+  color: black;
+  font-size: 16pt;
+}
+
+.hide {
+  color: black;
 }
