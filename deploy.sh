@@ -13,5 +13,3 @@ git add .
 git commit -m "Deploy"
 
 git push -f git@github.com:d-as/ctc-transpose-helper.git master
-
-cd -
