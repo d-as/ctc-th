@@ -623,20 +623,20 @@ const App = () => {
           <label>
             <input
               type="checkbox"
-              checked={showSameLettersOnHover}
-              onChange={e => changeShowSameLettersOnHover(e.target.checked)}
+              checked={showMatchingLettersBetweenSides}
+              onChange={e => changeShowMatchingLettersBetweenSides(e.target.checked)}
             />
-            Show same letters on hover
+            Show matching letters between sides
           </label>
         </span>
         <span className="option-row">
           <label>
             <input
               type="checkbox"
-              checked={showMatchingLettersBetweenSides}
-              onChange={e => changeShowMatchingLettersBetweenSides(e.target.checked)}
+              checked={showSameLettersOnHover}
+              onChange={e => changeShowSameLettersOnHover(e.target.checked)}
             />
-            Show matching letters between sides
+            Show same letters on hover
           </label>
         </span>
         <span className="option-row">
