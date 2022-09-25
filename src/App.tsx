@@ -23,7 +23,7 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.5 / DAS#0437';
+const VERSION_TEXT = 'v0.3.6 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -104,6 +104,9 @@ const App = () => {
         setSwapColFrom(cell);
       } else if (!swapColTo.trim() && cell !== swapColFrom) {
         setSwapColTo(cell);
+      } else {
+        setSwapColFrom(cell);
+        setSwapColTo('');
       }
     } else if (col === 0) {
       if (swapRowFrom.trim().toUpperCase() === cell) {
@@ -114,6 +117,9 @@ const App = () => {
         setSwapRowFrom(cell);
       } else if (!swapRowTo.trim() && cell !== swapRowFrom) {
         setSwapRowTo(cell);
+      } else {
+        setSwapRowFrom(cell);
+        setSwapRowTo('');
       }
     }
   };
