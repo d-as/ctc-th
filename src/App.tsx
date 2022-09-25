@@ -23,7 +23,8 @@ enum SelectMode {
   HIDE,
 }
 
-const VERSION_TEXT = 'v0.3.1 / DAS#0437';
+const VERSION_TEXT = 'v0.3.2 / DAS#0437';
+const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
   const [rows, setRows] = useState([...rowData]);
@@ -38,6 +39,9 @@ const App = () => {
   const [swapRowTo, setSwapRowTo] = useState('');
   const [swapColFrom, setSwapColFrom] = useState('');
   const [swapColTo, setSwapColTo] = useState('');
+
+  const [showSameLettersOnHover, setShowSameLettersOnHover] = useState(false);
+  const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
 
   const indexToLetter = (row: number): string => {
     return String.fromCharCode('A'.charCodeAt(0) + row - 1);
@@ -67,11 +71,17 @@ const App = () => {
       return ''
     }
 
+    const cell = getCell(row, col);
     const colOffset = colOffsets[col];
     const key = getCellKey((row + colOffset) % 10, col);
     const isHighlighted = highlights.has(key);
     const isHidden = hidden.has(key);
-    return isHighlighted ? 'highlight' : (isHidden ? 'hidden' : '');
+
+    return [
+      isHighlighted ? 'highlight' : (isHidden ? 'hidden' : ''),
+      showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
+    ]
+      .join(' ');
   };
 
   const highlightCell = (row: number, col: number): void => {
@@ -256,6 +266,14 @@ const App = () => {
     return ['arrow-cell', offset === 0 ? 'offset-faded' : ''].join(' ');
   };
 
+  const hoverCell = (row: number, col: number, active: boolean): void => {
+    setHoveredLetter(active && row > 0 && row <= 10 && col > 0 && col <= 36 ? getCell(row, col) : undefined);
+  };
+
+  const changeShowSameLettersOnHover = (show: boolean): void => {
+    setShowSameLettersOnHover(show);
+  };
+
   return (
     <div className="App">
       <span className="reset-container">
@@ -321,6 +339,8 @@ const App = () => {
                     .join(' ')
                 }
                 onClick={() => highlightCell(row, col)}
+                onMouseEnter={() => hoverCell(row, col, true)}
+                onMouseLeave={() => hoverCell(row, col, false)}
               >
                 {getCell(row, col)}
               </td>
@@ -400,7 +420,17 @@ const App = () => {
           Hide
         </label>
       </div>
-      <span className="version-container">
+      <div className="option-row">
+        <label>
+          <input
+            type="checkbox"
+            checked={showSameLettersOnHover}
+            onChange={e => changeShowSameLettersOnHover(e.target.checked)}
+          />
+          Show same letters on hover
+        </label>
+      </div>
+      <span className="version-container" title={VERSION_TEXT_TITLE}>
         {VERSION_TEXT}
       </span>
     </div>

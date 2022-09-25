@@ -75,11 +75,27 @@ td {
     background-color: #EEE;
   }
 
+  &.hovered-letter-cell {
+    background-color: #DDD;
+
+    &:hover {
+      background-color: #EEE;
+    }
+  }
+
   &.highlight {
     background-color: hsl(350, 100%, 88%);
 
     &:hover {
       background-color: hsl(350, 100%, 83%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(350, 100%, 83%);
+
+      &:hover {
+        background-color: hsl(350, 100%, 78%);
+      }
     }
   }
   
@@ -89,6 +105,14 @@ td {
 
     &:hover {
       color: #777;
+    }
+
+    &.hovered-letter-cell {
+      color: #DDD;
+  
+      &:hover {
+        color: #777;
+      }
     }
   }
 
@@ -160,8 +184,25 @@ td {
   justify-content: flex-end;
   color: #161616;
   font-size: 10pt;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: #EEE;
+    transition: color 0.2s;
+  }
 }
 
 .offset-faded {
   color: #777;
+}
+
+.option-row {
+  display: flex;
+  justify-content: center;
+  color: white;
+
+  label {
+    display: flex;
+    gap: 4px;
+  }
 }
