@@ -39,12 +39,16 @@ enum LocalStorageKey {
   SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
   SHOW_MATCHING_LETTERS = 'showMatchingLetters',
   SHOW_VOWELS = 'showVowels',
+  SHOW_SUBSTITUTIONS = 'showSubstitutions',
+  SUBSTITUTIONS = 'substitutions',
   VERSION = 'version',
 }
 
-const VERSION = 'v0.5.2';
+const VERSION = 'v0.6.0';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Discord Tag'
+
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 const App = () => {
   const [rows, setRows] = useState([...rowData]);
@@ -59,6 +63,12 @@ const App = () => {
   const [hidden, setHidden] = useState(new Set<string>());
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(38).map(n => [n, 0])));
   const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_1);
+
+  const [substitutions, setSubstitutions] = useState<Record<string, string>>(
+    Object.fromEntries([...ALPHABET].map(letter => [letter, letter])),
+  );
+
+  const [showSubstitutions, setShowSubstitutions] = useState(false);
 
   const [swapLeftRowFrom, setSwapLeftRowFrom] = useState('');
   const [swapLeftRowTo, setSwapLeftRowTo] = useState('');
@@ -98,11 +108,14 @@ const App = () => {
     } else if (col === 0 || col === 37) {
       return indexToLetter(row);
     }
-    return rows[row - 1][col - 1];
+
+    const cell = rows[row - 1][col - 1];
+    return showSubstitutions ? substitutions[cell] : cell;
   };
 
   const getTrueCell = (trueRow: number, trueCol: number): string => {
-    return trueRows[trueRow - 1][trueCol - 1];
+    const trueCell = trueRows[trueRow - 1][trueCol - 1];
+    return showSubstitutions ? substitutions[trueCell] : trueCell;
   };
 
   const getCellKey = (row: number, col: number): string => {
@@ -322,6 +335,8 @@ const App = () => {
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
     const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
+    const localShowSubstitutions = window.localStorage.getItem(LocalStorageKey.SHOW_SUBSTITUTIONS);
+    const localSubstitutions = window.localStorage.getItem(LocalStorageKey.SUBSTITUTIONS);
     const localVersion = window.localStorage.getItem(LocalStorageKey.VERSION);
 
     if (localHighlights1 && validateHighlights(localHighlights1, LocalStorageKey.HIGHLIGHTS_1)) {
@@ -370,6 +385,14 @@ const App = () => {
 
     if (localShowVowels) {
       setShowVowels(JSON.parse(localShowVowels));
+    }
+
+    if (localShowSubstitutions) {
+      setShowSubstitutions(JSON.parse(localShowSubstitutions));
+    }
+
+    if (localSubstitutions) {
+      setSubstitutions(JSON.parse(localSubstitutions));
     }
 
     if (!localVersion || localVersion !== VERSION) {
@@ -589,6 +612,24 @@ const App = () => {
       .every(t => t);
   };
 
+  const changeSubstitution = (letter: string, substitution: string): void => {
+    const isValid = ALPHABET.includes(substitution);
+
+    if (!isValid && substitution !== 'BACKSPACE') {
+      return;
+    }
+
+    const newSubstitutions = { ...substitutions };
+    const newSubstitution = isValid ? substitution : letter;
+    newSubstitutions[letter] = newSubstitution;
+    setSubstitutions(newSubstitutions);
+    window.localStorage.setItem(LocalStorageKey.SUBSTITUTIONS, JSON.stringify(newSubstitutions));
+
+    if (hoveredLetter) {
+      setHoveredLetter(newSubstitution);
+    }
+  };
+
   const renderCell = (row: number, col: number, trueRow: number, trueCol: number): JSX.Element => {
     return (
       <td
@@ -701,6 +742,48 @@ const App = () => {
               </td>
             ))}
           </tr>
+          {showSubstitutions ? (
+              <>
+                <tr className="border-top-white">
+                  {range(38).map(i => {
+                    const letter = indexToLetter(i - 5);;
+                    return (
+                      <td
+                        className="arrow-cell"
+                        key={`substitution-key-${i}`}
+                        onMouseEnter={() => setHoveredLetter(letter)}
+                        onMouseLeave={() => setHoveredLetter(undefined)}
+                      >
+                        {i > 5 && i < 32 ? letter : ''}
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  {range(38).map(i => {
+                    const letter = indexToLetter(i - 5);
+                    const substitution = substitutions[letter];
+                    return (
+                      <td
+                        className="arrow-cell"
+                        key={`substitution-value-${i}`}
+                        onMouseEnter={() => setHoveredLetter(substitution)}
+                        onMouseLeave={() => setHoveredLetter(undefined)}
+                      >
+                        {i > 5 && i < 32 ? (
+                          <input
+                            className={`substitution-input ${letter === substitution ? 'faded' : ''}`}
+                            value={substitution}
+                            readOnly
+                            onKeyDown={e => changeSubstitution(letter, e.key.toUpperCase())}
+                          />
+                        ) : ''}
+                      </td>
+                    );
+                  })}
+                </tr>
+              </>
+            ) : null}
         </tfoot>
       </table>
       <div className="footer-container">
@@ -804,7 +887,23 @@ const App = () => {
             </button>
           </div>
         </div>
-        <div className="col flex-end">
+        <div className="col substitution-options">
+          <span className="flex-gap">
+            <button onClick={() => {
+              const show = !showSubstitutions;
+              setShowSubstitutions(show);
+              window.localStorage.setItem(LocalStorageKey.SHOW_SUBSTITUTIONS, JSON.stringify(show));
+            }}>
+              Toggle substitutions
+            </button>
+            <button onClick={() => {
+              const newSubstitutions = Object.fromEntries([...ALPHABET].map(letter => [letter, letter]));
+              setSubstitutions(newSubstitutions);
+              window.localStorage.setItem(LocalStorageKey.SUBSTITUTIONS, JSON.stringify(newSubstitutions));
+            }}>
+              Reset substitutions
+            </button>
+          </span>
           <span className="version-container">
             <span className="version-text" title={VERSION_TEXT_TITLE}>
               {VERSION_TEXT}

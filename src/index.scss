@@ -46,6 +46,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  user-select: none !important;
 
   &:hover {
     border-color: #646cff;
@@ -83,6 +84,7 @@ button:focus-visible {
 table {
   border-collapse: collapse;
   background-color: white;
+  user-select: none !important;
 }
 
 td {
@@ -373,4 +375,39 @@ td {
 
 .hint-text {
   font-size: 10pt;
+}
+
+.substitution-options {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+
+  button {
+    min-width: 250px;
+  }
+
+  .flex-gap {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.substitution-input {
+  background-color: #242424;
+  border: none;
+  color: white;
+  text-align: center;
+  width: 70%;
+  height: 80%;
+  font-size: 12pt;
+  text-transform: capitalize;
+
+  &.faded {
+    color: #777;
+  }
+}
+
+.border-top-white {
+  border-top: solid white 2px;
 }
