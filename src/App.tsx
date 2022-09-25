@@ -34,7 +34,7 @@ enum LocalStorageKey {
   SHOW_VOWELS = 'showVowels',
 }
 
-const VERSION_TEXT = 'v0.4.0 / DAS#0437';
+const VERSION_TEXT = 'v0.4.1 / DAS#0437';
 const VERSION_TEXT_TITLE = 'Discord Tag'
 
 const App = () => {
@@ -65,11 +65,15 @@ const App = () => {
     return letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
   }
 
-  const getCell = (row: number, col: number, visual = false): string => {
+  const noDuplicateLabelsOnOneSide = (): boolean => {
+    return colOrder.slice(0, 19).every(col => col < 19);
+  };
+
+  const getCell = (row: number, col: number, trueRow: number, trueCol: number, visual = false): string => {
     if (row === 0 && col === 0) {
       return ''
     } else if (row === 0) {
-      if (visual) {
+      if (visual && trueCol > 18 && noDuplicateLabelsOnOneSide()) {
         return (col > 18 ? (col - 18) : col).toString();
       }
       return col.toString();
@@ -103,7 +107,7 @@ const App = () => {
   const isVowel = (cell: string): boolean => 'AEIOU'.includes(cell);
 
   const getCellStyle = (row: number, col: number, trueRow: number, trueCol: number): string => {
-    const cell = getCell(row, col);
+    const cell = getCell(row, col, trueRow, trueCol);
 
     if (row === 0 || col === 0) {
       return [
@@ -127,8 +131,8 @@ const App = () => {
       .join(' ');
   };
 
-  const headerClicked = (row: number, col: number): void => {
-    const cell = getCell(row, col);
+  const headerClicked = (row: number, col: number, trueRow: number, trueCol: number): void => {
+    const cell = getCell(row, col, trueRow, trueCol);
 
     if (row === 0) {
       if (swapColFrom.trim() === cell) {
@@ -159,9 +163,9 @@ const App = () => {
     }
   };
 
-  const cellClicked = (row: number, col: number): void => {
+  const cellClicked = (row: number, col: number, trueRow: number, trueCol: number): void => {
     if (row === 0 || col === 0) {
-      headerClicked(row, col);
+      headerClicked(row, col, trueRow, trueCol);
       return;
     }
 
@@ -373,8 +377,12 @@ const App = () => {
     return ['arrow-cell', offset === 0 ? 'offset-faded' : ''].join(' ');
   };
 
-  const hoverCell = (row: number, col: number, active: boolean): void => {
-    setHoveredLetter(active && row > 0 && row <= 10 && col > 0 && col <= 36 ? getCell(row, col) : undefined);
+  const hoverCell = (row: number, col: number, trueRow: number, trueCol: number, active: boolean): void => {
+    setHoveredLetter(
+      active && row > 0 && row <= 10 && col > 0 && col <= 36
+        ? getCell(row, col, trueRow, trueCol)
+        : undefined
+    );
   };
 
   const changeShowSameLettersOnHover = (show: boolean): void => {
@@ -501,11 +509,11 @@ const App = () => {
                   ]
                     .join(' ')
                 }
-                onClick={() => cellClicked(row, col)}
-                onMouseEnter={() => hoverCell(row, col, true)}
-                onMouseLeave={() => hoverCell(row, col, false)}
+                onClick={() => cellClicked(row, col, trueRow, trueCol)}
+                onMouseEnter={() => hoverCell(row, col, trueRow, trueCol, true)}
+                onMouseLeave={() => hoverCell(row, col, trueRow, trueCol, false)}
               >
-                {getCell(row, col, true)}
+                {getCell(row, col, trueRow, trueCol, true)}
               </td>
             ))}
             </tr>)
