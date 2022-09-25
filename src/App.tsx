@@ -605,21 +605,6 @@ const App = () => {
     ));
   };
 
-  const shiftAllowed = (): boolean => {
-    return [
-      swapLeftRowFrom, swapLeftRowTo, swapRightRowFrom, swapRightRowTo, swapColFrom, swapColTo,
-    ]
-      .filter(s => s).length === 1;
-  };
-
-  const shiftHorizontalAllowed = (): boolean => {
-    return shiftAllowed() && !!(swapColFrom || swapColTo);
-  };
-
-  const shiftVerticalAllowed = (): boolean => {
-    return shiftAllowed();
-  };
-
   return (
     <div className="App">
       <span className="reset-container">
@@ -801,39 +786,7 @@ const App = () => {
             </button>
           </div>
         </div>
-        <div className="col">
-          <span className="white hint-text">
-            Shift active row/column by clicking the arrows
-          </span>
-          <div className="spacer"></div>
-          <div className="virtual-arrows">
-            <span className="arrow-row">
-              <span className="arrow-col"></span>
-              <span className="arrow-col">
-                <button disabled={!shiftVerticalAllowed()}>
-                  ↑
-                </button>
-              </span>
-              <span className="arrow-col"></span>
-            </span>
-            <span className="arrow-row">
-              <span className="arrow-col">
-                <button disabled={!shiftHorizontalAllowed()}>
-                  ←
-                </button>
-              </span>
-              <span className="arrow-col">
-                <button disabled={!shiftVerticalAllowed()}>
-                  ↓
-                </button>
-              </span>
-              <span className="arrow-col">
-                <button disabled={!shiftHorizontalAllowed()}>
-                  →
-                </button>
-              </span>
-            </span>
-          </div>
+        <div className="col flex-end">
           <span className="version-container">
             <span className="version-text" title={VERSION_TEXT_TITLE}>
               {VERSION_TEXT}
