@@ -908,7 +908,10 @@ const App = () => {
             }}>
               Toggle substitutions
             </button>
-            <button onClick={() => resetSubstitutions()}>
+            <button
+              onClick={() => resetSubstitutions()}
+              disabled={noSubstitutions()}
+            >
               Reset substitutions
             </button>
           </span>
