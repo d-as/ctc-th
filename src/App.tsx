@@ -33,7 +33,7 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.7.0';
+const VERSION = 'v0.7.1';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -225,7 +225,7 @@ const App = () => {
           const cell = getCell(row, col);
 
           if (cell === value) {
-            const cellKey = getCellKey(row, col);
+            const cellKey = getCellKey(row + colOffsets[col], col);
             cellKeys.push(cellKey);
 
             if (highlights[cellKey] !== highlightMode) {
