@@ -33,7 +33,7 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.6.8';
+const VERSION = 'v0.7.0';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -94,11 +94,11 @@ const App = () => {
 
   // Returns the cell value from the original grid at a given position
   // If you need a value from the current layout of the grid, use getTrueCell
-  const getCell = (row: number, col: number, trueRow: number, trueCol: number, visual = false): string => {
+  const getCell = (row: number, col: number, trueCol?: number, visual = false): string => {
     if (row === 0 && (col < 1 || col > 36)) {
       return ''
     } else if (row === 0) {
-      if (visual && trueCol > 18 && noDuplicateLabelsOnOneSide()) {
+      if (visual && trueCol !== undefined && trueCol > 18 && noDuplicateLabelsOnOneSide()) {
         return (col > 18 ? (col - 18) : col).toString();
       }
       return col.toString();
@@ -144,7 +144,7 @@ const App = () => {
   const isVowel = (cell: string): boolean => 'AEIOU'.includes(cell);
 
   const getCellStyle = (row: number, col: number, trueRow: number, trueCol: number): string => {
-    const cell = getCell(row, col, trueRow, trueCol);
+    const cell = getCell(row, col, trueCol);
 
     if (row === 0 || col === 0 || col === 37) {
       return [
@@ -168,9 +168,9 @@ const App = () => {
   };
 
   const headerClicked = (row: number, col: number, trueRow: number, trueCol: number): void => {
-    const cell = getCell(row, col, trueRow, trueCol);
+    const cell = getCell(row, col, trueCol);
 
-    // This could be refactored
+    // This could be refactored if from/to states are combined to a single array state
 
     if (row === 0) {
       if (swapColFrom === cell) {
@@ -214,6 +214,36 @@ const App = () => {
     }
   };
 
+  const highlightAllCellsWithValue = (value: string): void => {
+    const cellKeys: string[] = [];
+    const newHighlights = { ...highlights };
+    let shouldRemoveHighlights = true;
+
+    range(11).forEach(row => {
+      range(37).forEach(col => {
+        if (row > 0 && col > 0) {
+          const cell = getCell(row, col);
+
+          if (cell === value) {
+            const cellKey = getCellKey(row, col);
+            cellKeys.push(cellKey);
+
+            if (highlights[cellKey] !== highlightMode) {
+              shouldRemoveHighlights = false;
+            }
+          }
+        }
+      });
+    });
+
+    cellKeys.forEach(cellKey => {
+      newHighlights[cellKey] = shouldRemoveHighlights ? undefined : highlightMode;
+    });
+
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS, JSON.stringify(newHighlights));
+    setHighlights(newHighlights);
+  };
+
   const cellClicked = (row: number, col: number, trueRow: number, trueCol: number): void => {
     if (row === 0 || col === 0 || col === 37) {
       headerClicked(row, col, trueRow, trueCol);
@@ -222,12 +252,18 @@ const App = () => {
 
     const colOffset = colOffsets[col];
     const cellKey = getCellKey(row + colOffset, col);
-    const newHighlights = { ...highlights };
+    const cell = getCell(row, col, trueCol);
 
-    newHighlights[cellKey] = highlights[cellKey] === highlightMode ? undefined : highlightMode;
+    if (showSameLettersOnHover && highlightSameLettersWhenClicked) {
+      highlightAllCellsWithValue(cell);
+    } else {
+      const newHighlights = { ...highlights };
 
-    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS, JSON.stringify(newHighlights));
-    setHighlights(newHighlights);
+      newHighlights[cellKey] = highlights[cellKey] === highlightMode ? undefined : highlightMode;
+  
+      window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS, JSON.stringify(newHighlights));
+      setHighlights(newHighlights);
+    }
   };
 
   const validateHighlights = (localHighlights: string): boolean => {
@@ -491,7 +527,7 @@ const App = () => {
   const hoverCell = (row: number, col: number, trueRow: number, trueCol: number, active: boolean): void => {
     setHoveredLetter(
       active && row > 0 && row <= 10 && col > 0 && col <= 36
-        ? getCell(row, col, trueRow, trueCol)
+        ? getCell(row, col, trueRow)
         : undefined
     );
   };
@@ -593,7 +629,7 @@ const App = () => {
         onMouseEnter={() => hoverCell(row, col, trueRow, trueCol, true)}
         onMouseLeave={() => hoverCell(row, col, trueRow, trueCol, false)}
       >
-        {getCell(row, col, trueRow, trueCol, true)}
+        {getCell(row, col, trueRow, true)}
       </td>
     );
   };
@@ -694,6 +730,11 @@ const App = () => {
                       <td
                         className="arrow-cell"
                         key={`substitution-key-${i}`}
+                        onClick={() => {
+                          if (showSameLettersOnHover && highlightSameLettersWhenClicked) {
+                            highlightAllCellsWithValue(letter);
+                          }
+                        }}
                         onMouseEnter={() => setHoveredLetter(letter)}
                         onMouseLeave={() => setHoveredLetter(undefined)}
                       >
@@ -778,8 +819,6 @@ const App = () => {
                 Show same letters on hover
               </label>
             </span>
-            {/* TODO: Add option for highlighting same letters when a cell is clicked, probably requires highlight refactor */}
-            {false && (
             <span className="option-row indent">
               <label>
                 <input
@@ -791,7 +830,6 @@ const App = () => {
                 Highlight same letters when clicked
               </label>
             </span>
-            )}
             <span className="option-row">
               <label>
                 <input
