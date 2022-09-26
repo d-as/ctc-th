@@ -19,19 +19,15 @@ const rowData = data.map(([l, r]) => `${l}${r}`);
 const range = (size: number) => [...Array(size).keys()];
 
 enum HighlightMode {
-  HIGHLIGHT_1,
-  HIGHLIGHT_2,
-  HIGHLIGHT_3,
-  HIGHLIGHT_4,
-  HIDE,
+  HIGHLIGHT_RED,
+  HIGHLIGHT_BLUE,
+  HIGHLIGHT_GREEN,
+  HIGHLIGHT_YELLOW,
+  HIDE, // Keep this as the last one for validation
 }
 
 enum LocalStorageKey {
-  HIGHLIGHTS_1 = 'highlights',
-  HIGHLIGHTS_2 = 'highlights2',
-  HIGHLIGHTS_3 = 'highlights3',
-  HIGHLIGHTS_4 = 'highlights4',
-  HIDDEN = 'hidden',
+  HIGHLIGHTS = 'highlights',
   ROW_ORDER_LEFT = 'rowOrder',
   ROW_ORDER_RIGHT = 'rowOrderRight',
   COL_ORDER = 'colOrder',
@@ -45,7 +41,7 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.6.3';
+const VERSION = 'v0.6.4';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -57,18 +53,9 @@ const App = () => {
   const [rowOrderLeft, setRowOrderLeft] = useState(range(11));
   const [rowOrderRight, setRowOrderRight] = useState(range(11));
   const [colOrder, setColOrder] = useState(range(38));
-
-  // Highlights could be stored in a single state, e.g. Record<string, HighlightType>
-  // This would require invalidating highlights saved with an older version
-
-  const [highlights1, setHighlights1] = useState(new Set<string>());
-  const [highlights2, setHighlights2] = useState(new Set<string>());
-  const [highlights3, setHighlights3] = useState(new Set<string>());
-  const [highlights4, setHighlights4] = useState(new Set<string>());
-
-  const [hidden, setHidden] = useState(new Set<string>());
+  const [highlights, setHighlights] = useState<Record<string, HighlightMode | undefined>>({});
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(38).map(n => [n, 0])));
-  const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_1);
+  const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_RED);
 
   const [substitutions, setSubstitutions] = useState<Record<string, string>>(
     Object.fromEntries([...ALPHABET].map(letter => [letter, letter])),
@@ -177,18 +164,10 @@ const App = () => {
 
     const colOffset = colOffsets[col];
     const key = getCellKey(row + colOffset, col);
-    const isHighlighted1 = highlights1.has(key);
-    const isHighlighted2 = highlights2.has(key);
-    const isHighlighted3 = highlights3.has(key);
-    const isHighlighted4 = highlights4.has(key);
-    const isHidden = hidden.has(key);
+    const highlight = highlights[key];
 
     return [
-      isHighlighted1 ? 'highlight-1' : '',
-      isHighlighted2 ? 'highlight-2' : '',
-      isHighlighted3 ? 'highlight-3' : '',
-      isHighlighted4 ? 'highlight-4' : '',
-      isHidden ? 'hidden' : '',
+      highlight !== undefined ? `highlight-${highlight + 1}` : '',
       showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
       showMatchingLettersBetweenSides ? getMatchingCellStyle(trueRow, trueCol) : '',
       showVowels && isVowel(cell) ? 'cell-vowel' : '',
@@ -198,6 +177,8 @@ const App = () => {
 
   const headerClicked = (row: number, col: number, trueRow: number, trueCol: number): void => {
     const cell = getCell(row, col, trueRow, trueCol);
+
+    // This could be refactored
 
     if (row === 0) {
       if (swapColFrom === cell) {
@@ -248,100 +229,35 @@ const App = () => {
     }
 
     const colOffset = colOffsets[col];
-    const key = getCellKey(row + colOffset, col);
+    const cellKey = getCellKey(row + colOffset, col);
+    const newHighlights = { ...highlights };
 
-    const newHighlights1 = new Set(highlights1);
-    const newHighlights2 = new Set(highlights2);
-    const newHighlights3 = new Set(highlights3);
-    const newHighlights4 = new Set(highlights4);
-    const newHidden = new Set(hidden);
+    newHighlights[cellKey] = highlights[cellKey] === highlightMode ? undefined : highlightMode;
 
-    // Yes, this is ugly and needs to be refactored if more highlight styles are added
-
-    if (highlightMode === HighlightMode.HIGHLIGHT_1) {
-      if (newHighlights1.has(key)) {
-        newHighlights1.delete(key);
-      } else {
-        newHighlights1.add(key);
-      }
-
-      newHighlights2.delete(key);
-      newHighlights3.delete(key);
-      newHighlights4.delete(key);
-      newHidden.delete(key);
-    } else if (highlightMode === HighlightMode.HIGHLIGHT_2) {
-      if (newHighlights2.has(key)) {
-        newHighlights2.delete(key);
-      } else {
-        newHighlights2.add(key);
-      }
-
-      newHighlights1.delete(key);
-      newHighlights3.delete(key);
-      newHighlights4.delete(key);
-      newHidden.delete(key);
-    } else if (highlightMode === HighlightMode.HIGHLIGHT_3) {
-      if (newHighlights3.has(key)) {
-        newHighlights3.delete(key);
-      } else {
-        newHighlights3.add(key);
-      }
-
-      newHighlights1.delete(key);
-      newHighlights2.delete(key);
-      newHighlights4.delete(key);
-      newHidden.delete(key);
-    } else if (highlightMode === HighlightMode.HIGHLIGHT_4) {
-      if (newHighlights4.has(key)) {
-        newHighlights4.delete(key);
-      } else {
-        newHighlights4.add(key);
-      }
-
-      newHighlights1.delete(key);
-      newHighlights2.delete(key);
-      newHighlights3.delete(key);
-      newHidden.delete(key);
-    } else if (highlightMode === HighlightMode.HIDE) {
-      if (newHidden.has(key)) {
-        newHidden.delete(key);
-      } else {
-        newHidden.add(key);
-      }
-
-      newHighlights1.delete(key);
-      newHighlights2.delete(key);
-      newHighlights3.delete(key);
-      newHighlights4.delete(key);
-    }
-
-    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_1, JSON.stringify(Array.from(newHighlights1)));
-    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_2, JSON.stringify(Array.from(newHighlights2)));
-    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_3, JSON.stringify(Array.from(newHighlights3)));
-    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS_4, JSON.stringify(Array.from(newHighlights4)));
-    window.localStorage.setItem(LocalStorageKey.HIDDEN, JSON.stringify(Array.from(newHidden)));
-
-    setHighlights1(newHighlights1);
-    setHighlights2(newHighlights2);
-    setHighlights3(newHighlights3);
-    setHighlights4(newHighlights4);
-    setHidden(newHidden);
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHTS, JSON.stringify(newHighlights));
+    setHighlights(newHighlights);
   };
 
-  const validateHighlights = (localHighlights: string, localStorageKey: LocalStorageKey): boolean => {
+  const validateHighlights = (localHighlights: string): boolean => {
     try {
-      const isValid = (JSON.parse(localHighlights) as string[]).every(highlight => {
-        const [row, col] = highlight.split(',');
+      const parsedHighlights = JSON.parse(localHighlights) as Record<string, HighlightMode | undefined>;
+
+      const isValidKeys = Object.keys(parsedHighlights).every(cell => {
+        const [row, col] = cell.split(',');
         const colNumber = Number(col);
         return 'ABCDEFGHIJ'.includes(row) && !Number.isNaN(colNumber) && colNumber > 0 && colNumber < 37;
       });
 
-      if (isValid) {
+      const isValidValues = Object.values(parsedHighlights).every(highlightMode => {
+        return highlightMode === undefined || (highlightMode >= 0 && highlightMode <= HighlightMode.HIDE);
+      });
+
+      if (isValidKeys && isValidValues) {
         return true;
       }
       throw new Error();
     } catch {
-      window.localStorage.removeItem(localStorageKey);
+      window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS);
     }
     return false;
   };
@@ -349,11 +265,7 @@ const App = () => {
   useEffect(() => {
     // This could be a bit more elegant
 
-    const localHighlights1 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_1);
-    const localHighlights2 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_2);
-    const localHighlights3 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_3);
-    const localHighlights4 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_4);
-    const localHidden = window.localStorage.getItem(LocalStorageKey.HIDDEN);
+    const localHighlights = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS);
     const localRowOrderRight = window.localStorage.getItem(LocalStorageKey.ROW_ORDER_RIGHT);
     const localRowOrderLeft = window.localStorage.getItem(LocalStorageKey.ROW_ORDER_LEFT);
     const localColOrder = window.localStorage.getItem(LocalStorageKey.COL_ORDER);
@@ -366,24 +278,8 @@ const App = () => {
     const localSubstitutions = window.localStorage.getItem(LocalStorageKey.SUBSTITUTIONS);
     const localVersion = window.localStorage.getItem(LocalStorageKey.VERSION);
 
-    if (localHighlights1 && validateHighlights(localHighlights1, LocalStorageKey.HIGHLIGHTS_1)) {
-      setHighlights1(new Set(JSON.parse(localHighlights1)));
-    }
-
-    if (localHighlights2 && validateHighlights(localHighlights2, LocalStorageKey.HIGHLIGHTS_2)) {
-      setHighlights2(new Set(JSON.parse(localHighlights2)));
-    }
-
-    if (localHighlights3 && validateHighlights(localHighlights3, LocalStorageKey.HIGHLIGHTS_3)) {
-      setHighlights3(new Set(JSON.parse(localHighlights3)));
-    }
-
-    if (localHighlights4 && validateHighlights(localHighlights4, LocalStorageKey.HIGHLIGHTS_4)) {
-      setHighlights4(new Set(JSON.parse(localHighlights4)));
-    }
-
-    if (localHidden) {
-      setHidden(new Set(JSON.parse(localHidden)));
+    if (localHighlights && validateHighlights(localHighlights)) {
+      setHighlights(JSON.parse(localHighlights));
     }
 
     if (localRowOrderLeft) {
@@ -567,16 +463,8 @@ const App = () => {
   };
 
   const resetHighlights = (): void => {
-    setHighlights1(new Set());
-    setHighlights2(new Set());
-    setHighlights3(new Set());
-    setHighlights4(new Set());
-    setHidden(new Set());
-    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_1);
-    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_2);
-    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_3);
-    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS_4);
-    window.localStorage.removeItem(LocalStorageKey.HIDDEN);
+    setHighlights({});
+    window.localStorage.removeItem(LocalStorageKey.HIGHLIGHTS);
   };
 
   const resetOffsets = (): void => {
@@ -638,9 +526,7 @@ const App = () => {
 
   const resetColsDisabled = (): boolean => colOrder.toString() === range(38).toString();
 
-  const resetHighlightsDisabled = (): boolean => (
-    !highlights1.size && !highlights2.size && !highlights3.size && !highlights4.size && !hidden.size
-  );
+  const resetHighlightsDisabled = (): boolean => Object.values(highlights).every(highlight => highlight === undefined);
 
   const resetOffsetsDisabled = (): boolean => Object.values(colOffsets).every(offset => offset === 0);
 
