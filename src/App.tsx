@@ -113,6 +113,8 @@ const App = () => {
     return colOrder.slice(0, 19).every(col => col < 19);
   };
 
+  // Returns the cell value from the original grid at a given position
+  // If you need a value from the current layout of the grid, use getTrueCell
   const getCell = (row: number, col: number, trueRow: number, trueCol: number, visual = false): string => {
     if (row === 0 && (col < 1 || col > 36)) {
       return ''
@@ -131,6 +133,8 @@ const App = () => {
     return showOrdinals ? ordinal : letter;
   };
 
+  // True cell refers to the cell that is currently displayed at a given position
+  // For example, getTrueCell(1, 1) returns the value currently displayed in the top-left corner of the letter grid
   const getTrueCell = (trueRow: number, trueCol: number): string => {
     const trueCell = trueRows[trueRow - 1][trueCol - 1];
     return showSubstitutions ? substitutions[trueCell] : trueCell;
