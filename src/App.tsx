@@ -737,7 +737,7 @@ const App = () => {
                       {range(6).map(n => n + (row * 6)).map(n => (
                         <td
                           key={`highlight-option-${n + 1}`}
-                          className={`highlight-${n + 1} check-mark cursor-pointer`}
+                          className={`highlight-cell highlight-${n + 1} ${highlightMode === n ? 'check-mark' : ''} cursor-pointer`}
                           onClick={() => setHighlightMode(n)}
                         >
                           {highlightMode === n ? '✔' : (row === 0 && n === 5 ? 'Hide' : '')}

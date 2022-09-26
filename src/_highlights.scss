@@ -1,6 +1,10 @@
 // Could be less verbose with a mix/loop/something
 
 %highlights {
+  &.highlight-cell {
+    border-color: black;
+  }
+
   &.highlight-1 {
     background-color: hsl(350, 100%, 88%);
 
@@ -85,14 +89,18 @@
   &.highlight-6 {
     color: rgba(0, 0, 0, 0);
     border-color: black;
-    font-size: 10pt;
 
     &:hover {
       color: #777;
     }
 
-    &.check-mark {
+    &.highlight-cell {
       color: black;
+      font-size: 10pt;
+    }
+
+    &.check-mark {
+      font-size: 16pt;
     }
   }
 
