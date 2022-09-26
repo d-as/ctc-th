@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './App.scss'
+import './App.scss';
 
 const data = [
   ['YPWAIETOAENRMHMGEN', 'MIVWDMKDTCBANGBFKW'],
@@ -17,14 +17,6 @@ const data = [
 const rowData = data.map(([l, r]) => `${l}${r}`);
 
 const range = (size: number) => [...Array(size).keys()];
-
-enum HighlightMode {
-  HIGHLIGHT_RED,
-  HIGHLIGHT_BLUE,
-  HIGHLIGHT_GREEN,
-  HIGHLIGHT_YELLOW,
-  HIDE, // Keep this as the last one for validation
-}
 
 enum LocalStorageKey {
   HIGHLIGHTS = 'highlights',
@@ -47,15 +39,19 @@ const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug report
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
+// Number of supported highlight modes ("Hide" counts as one as well)
+const HIGHLIGHT_COUNT = 5;
+const HIGHLIGHTMODE_HIDE = HIGHLIGHT_COUNT - 1;
+
 const App = () => {
   const [rows, setRows] = useState([...rowData]);
   const [trueRows, setTrueRows] = useState(rows);
   const [rowOrderLeft, setRowOrderLeft] = useState(range(11));
   const [rowOrderRight, setRowOrderRight] = useState(range(11));
   const [colOrder, setColOrder] = useState(range(38));
-  const [highlights, setHighlights] = useState<Record<string, HighlightMode | undefined>>({});
+  const [highlights, setHighlights] = useState<Record<string, number | undefined>>({});
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(38).map(n => [n, 0])));
-  const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_RED);
+  const [highlightMode, setHighlightMode] = useState(0);
 
   const [substitutions, setSubstitutions] = useState<Record<string, string>>(
     Object.fromEntries([...ALPHABET].map(letter => [letter, letter])),
@@ -240,7 +236,7 @@ const App = () => {
 
   const validateHighlights = (localHighlights: string): boolean => {
     try {
-      const parsedHighlights = JSON.parse(localHighlights) as Record<string, HighlightMode | undefined>;
+      const parsedHighlights = JSON.parse(localHighlights) as Record<string, number | undefined>;
 
       const isValidKeys = Object.keys(parsedHighlights).every(cell => {
         const [row, col] = cell.split(',');
@@ -249,7 +245,7 @@ const App = () => {
       });
 
       const isValidValues = Object.values(parsedHighlights).every(highlightMode => {
-        return highlightMode === undefined || (highlightMode >= 0 && highlightMode <= HighlightMode.HIDE);
+        return highlightMode === undefined || (highlightMode >= 0 && Number.isInteger(highlightMode));
       });
 
       if (isValidKeys && isValidValues) {
@@ -752,10 +748,10 @@ const App = () => {
                       </td>
                     ))}
                     <td
-                      className={`hide cursor-pointer ${highlightMode === HighlightMode.HIDE ? 'check-mark' : ''}`}
-                      onClick={() => setHighlightMode(HighlightMode.HIDE)}
+                      className={`hide cursor-pointer ${highlightMode === HIGHLIGHTMODE_HIDE ? 'check-mark' : ''}`}
+                      onClick={() => setHighlightMode(HIGHLIGHTMODE_HIDE)}
                     >
-                      {highlightMode === HighlightMode.HIDE ? '✔' : 'Hide'}
+                      {highlightMode === HIGHLIGHTMODE_HIDE ? '✔' : 'Hide'}
                     </td>
                   </tr>
                 </tbody>
