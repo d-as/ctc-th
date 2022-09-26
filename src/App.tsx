@@ -80,6 +80,7 @@ const App = () => {
   const [showSameLettersOnHover, setShowSameLettersOnHover] = useState(false);
   const [showMatchingLettersBetweenSides, setShowMatchingLettersBetweenSides] = useState(false);
   const [showVowels, setShowVowels] = useState(false);
+  const [showOrdinals, setShowOrdinals] = useState(false); // TODO: Add a setting for this
   const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
 
   const indexToLetter = (index: number): string => String.fromCharCode('A'.charCodeAt(0) + index - 1);
@@ -115,7 +116,9 @@ const App = () => {
     }
 
     const cell = rows[row - 1][col - 1];
-    return showSubstitutions ? substitutions[cell] : cell;
+    const letter = showSubstitutions ? substitutions[cell] : cell;
+    const ordinal = (letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1).toString(); // A = 1, B = 2 etc.
+    return showOrdinals ? ordinal : letter;
   };
 
   const getTrueCell = (trueRow: number, trueCol: number): string => {
