@@ -1,3 +1,5 @@
+@import 'highlights';
+
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -11,6 +13,25 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: monospace;
+
+  button {
+    width: 150px;
+    color: white;
+  }
 }
 
 a {
@@ -136,81 +157,7 @@ td {
     }
   }
 
-  // Highlights could be generated with a mixin/loop/something
-
-  &.highlight-1 {
-    background-color: hsl(350, 100%, 88%);
-
-    &:hover {
-      background-color: hsl(350, 100%, 83%);
-    }
-
-    &.hovered-letter-cell {
-      background-color: hsl(350, 100%, 83%);
-
-      &:hover {
-        background-color: hsl(350, 100%, 78%);
-      }
-    }
-  }
-
-  &.highlight-2 {
-    background-color: hsl(250, 100%, 88%);
-
-    &:hover {
-      background-color: hsl(250, 100%, 83%);
-    }
-
-    &.hovered-letter-cell {
-      background-color: hsl(250, 100%, 83%);
-
-      &:hover {
-        background-color: hsl(250, 100%, 78%);
-      }
-    }
-  }
-
-  &.highlight-3 {
-    background-color: hsl(120, 25%, 80%);
-  
-    &:hover {
-      background-color: hsl(120, 25%, 85%);
-    }
-
-    &.hovered-letter-cell {
-      background-color: hsl(120, 25%, 75%);
-
-      &:hover {
-        background-color: hsl(120, 25%, 70%);
-      }
-    }
-  }
-
-  &.highlight-4 {
-    background-color: hsl(39, 100%, 80%);
-
-    &:hover {
-      background-color: hsl(39, 100%, 85%);
-    }
-
-    &.hovered-letter-cell {
-      background-color: hsl(39, 100%, 65%);
-
-      &:hover {
-        background-color: hsl(39, 100%, 60%);
-      }
-    }
-  }
-  
-  // Hidden
-  &.highlight-5 {
-    color: rgba(0, 0, 0, 0);
-    border-color: black;
-
-    &:hover {
-      color: #777;
-    }
-  }
+  @extend %highlights;
 
   &.border-top-bold {
     border-top-width: 2px;

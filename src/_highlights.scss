@@ -1,0 +1,195 @@
+// Could be less verbose with a mix/loop/something
+
+%highlights {
+  &.highlight-1 {
+    background-color: hsl(350, 100%, 88%);
+
+    &:hover {
+      background-color: hsl(350, 100%, 83%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(350, 100%, 83%);
+
+      &:hover {
+        background-color: hsl(350, 100%, 78%);
+      }
+    }
+  }
+
+  &.highlight-2 {
+    background-color: hsl(250, 100%, 88%);
+
+    &:hover {
+      background-color: hsl(250, 100%, 83%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(250, 100%, 83%);
+
+      &:hover {
+        background-color: hsl(250, 100%, 78%);
+      }
+    }
+  }
+
+  &.highlight-3 {
+    background-color: hsl(120, 25%, 80%);
+  
+    &:hover {
+      background-color: hsl(120, 25%, 85%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(120, 25%, 75%);
+
+      &:hover {
+        background-color: hsl(120, 25%, 70%);
+      }
+    }
+  }
+
+  &.highlight-4 {
+    background-color: hsl(39, 100%, 80%);
+
+    &:hover {
+      background-color: hsl(39, 100%, 85%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(39, 100%, 65%);
+
+      &:hover {
+        background-color: hsl(39, 100%, 60%);
+      }
+    }
+  }
+
+  &.highlight-5 {
+    background-color: hsl(30, 35%, 70%);
+
+    &:hover {
+      background-color: hsl(30, 35%, 75%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(30, 35%, 65%);
+
+      &:hover {
+        background-color: hsl(30, 35%, 60%);
+      }
+    }
+  }
+
+  // Hidden
+  &.highlight-6 {
+    color: rgba(0, 0, 0, 0);
+    border-color: black;
+
+    &:hover {
+      color: #777;
+    }
+
+    &.check-mark {
+      color: black;
+    }
+  }
+
+  &.highlight-7 {
+    background-color: hsl(325, 100%, 68%);
+
+    &:hover {
+      background-color: hsl(325, 100%, 63%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(325, 100%, 63%);
+
+      &:hover {
+        background-color: hsl(325, 100%, 58%);
+      }
+    }
+  }
+
+  &.highlight-8 {
+    background-color: hsl(225, 100%, 68%);
+
+    &:hover {
+      background-color: hsl(225, 100%, 63%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(225, 100%, 63%);
+
+      &:hover {
+        background-color: hsl(225, 100%, 58%);
+      }
+    }
+  }
+
+  &.highlight-9 {
+    background-color: hsl(150, 100%, 35%);
+  
+    &:hover {
+      background-color: hsl(150, 100%, 38%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(150, 100%, 38%);
+
+      &:hover {
+        background-color: hsl(150, 100%, 41%);
+      }
+    }
+  }
+
+  &.highlight-10 {
+    background-color: hsl(29, 100%, 60%);
+
+    &:hover {
+      background-color: hsl(29, 100%, 65%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(29, 100%, 45%);
+
+      &:hover {
+        background-color: hsl(29, 100%, 50%);
+      }
+    }
+  }
+
+  &.highlight-11 {
+    background-color: hsl(0, 0%, 73%);
+
+    &:hover {
+      background-color: hsl(0, 0%, 78%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(0, 0%, 78%);
+
+      &:hover {
+        background-color: hsl(0, 0%, 83%);
+      }
+    }
+  }
+
+  &.highlight-12 {
+    background-color: hsl(0, 0%, 15%);
+    color: white;
+    border-color: black;
+
+    &:hover {
+      background-color: hsl(0, 0%, 20%);
+    }
+
+    &.hovered-letter-cell {
+      background-color: hsl(0, 0%, 20%);
+
+      &:hover {
+        background-color: hsl(0, 0%, 25%);
+      }
+    }
+  }
+}

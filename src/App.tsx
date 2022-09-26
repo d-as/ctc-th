@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import './App.scss';
 
 const data = [
   ['YPWAIETOAENRMHMGEN', 'MIVWDMKDTCBANGBFKW'],
@@ -33,15 +32,11 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.6.4';
+const VERSION = 'v0.6.5';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-// Number of supported highlight modes ("Hide" counts as one as well)
-const HIGHLIGHT_COUNT = 5;
-const HIGHLIGHTMODE_HIDE = HIGHLIGHT_COUNT - 1;
 
 const App = () => {
   const [rows, setRows] = useState([...rowData]);
@@ -607,7 +602,7 @@ const App = () => {
   };
 
   return (
-    <div className="App">
+    <div className="app">
       <span className="reset-container">
         <button
           onClick={() => resetRows()}
@@ -737,23 +732,19 @@ const App = () => {
             <span className="option-row">
               <table className="black-borders">
                 <tbody>
-                  <tr>
-                    {range(4).map(n => (
-                      <td
-                        key={`highlight-option-${n + 1}`}
-                        className={`highlight-${n + 1} check-mark cursor-pointer`}
-                        onClick={() => setHighlightMode(n)}
-                      >
-                        {highlightMode === n ? '✔' : ''}
-                      </td>
-                    ))}
-                    <td
-                      className={`hide cursor-pointer ${highlightMode === HIGHLIGHTMODE_HIDE ? 'check-mark' : ''}`}
-                      onClick={() => setHighlightMode(HIGHLIGHTMODE_HIDE)}
-                    >
-                      {highlightMode === HIGHLIGHTMODE_HIDE ? '✔' : 'Hide'}
-                    </td>
-                  </tr>
+                  {range(2).map(row => (
+                    <tr key={`highlight-row-${row}`}>
+                      {range(6).map(n => n + (row * 6)).map(n => (
+                        <td
+                          key={`highlight-option-${n + 1}`}
+                          className={`highlight-${n + 1} check-mark cursor-pointer`}
+                          onClick={() => setHighlightMode(n)}
+                        >
+                          {highlightMode === n ? '✔' : ''}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </span>
