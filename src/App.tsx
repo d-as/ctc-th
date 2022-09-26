@@ -46,7 +46,7 @@ enum LocalStorageKey {
 
 const VERSION = 'v0.6.3';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
-const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests'
+const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -232,13 +232,14 @@ const App = () => {
 
     const colOffset = colOffsets[col];
     const key = getCellKey(row + colOffset, col);
-    console.log(key);
 
     const newHighlights1 = new Set(highlights1);
     const newHighlights2 = new Set(highlights2);
     const newHighlights3 = new Set(highlights3);
     const newHighlights4 = new Set(highlights4);
     const newHidden = new Set(hidden);
+
+    // Yes, this is ugly and needs to be refactored if more highlight styles are added
 
     if (highlightMode === HighlightMode.HIGHLIGHT_1) {
       if (newHighlights1.has(key)) {
@@ -329,6 +330,8 @@ const App = () => {
   };
 
   useEffect(() => {
+    // This could be a bit more elegant
+
     const localHighlights1 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_1);
     const localHighlights2 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_2);
     const localHighlights3 = window.localStorage.getItem(LocalStorageKey.HIGHLIGHTS_3);
