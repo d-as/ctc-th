@@ -44,9 +44,9 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.6.1';
+const VERSION = 'v0.6.2';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
-const VERSION_TEXT_TITLE = 'Discord Tag'
+const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -83,6 +83,9 @@ const App = () => {
   const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
 
   const indexToLetter = (row: number): string => {
+    while (row > 10) {
+      row -= 10;
+    }
     return String.fromCharCode('A'.charCodeAt(0) + row - 1);
   };
 
@@ -154,7 +157,7 @@ const App = () => {
     }
 
     const colOffset = colOffsets[col];
-    const key = getCellKey((row + colOffset) % 11, col);
+    const key = getCellKey(row + colOffset, col);
     const isHighlighted1 = highlights1.has(key);
     const isHighlighted2 = highlights2.has(key);
     const isHighlighted3 = highlights3.has(key);
@@ -226,7 +229,8 @@ const App = () => {
     }
 
     const colOffset = colOffsets[col];
-    const key = getCellKey((row + colOffset) % 11, col);
+    const key = getCellKey(row + colOffset, col);
+    console.log(key);
 
     const newHighlights1 = new Set(highlights1);
     const newHighlights2 = new Set(highlights2);
@@ -367,12 +371,24 @@ const App = () => {
       setRowOrderRight(JSON.parse(localRowOrderRight));
     }
 
-    if (localColOrder && localColOrder.length === 38) {
-      setColOrder(JSON.parse(localColOrder));
+    if (localColOrder) {
+      const newColOrder = JSON.parse(localColOrder);
+
+      if (newColOrder.length === 38) {
+        setColOrder(newColOrder);
+      } else {
+        window.localStorage.removeItem(LocalStorageKey.COL_ORDER);
+      }
     }
 
-    if (localColOffsets && localColOffsets.length === 38) {
-      setColOffsets(JSON.parse(localColOffsets));
+    if (localColOffsets) {
+      const newColOffsets = JSON.parse(localColOffsets);
+
+      if (Object.keys(newColOffsets).length === 38) {
+        setColOffsets(newColOffsets);
+      } else {
+        window.localStorage.removeItem(LocalStorageKey.COL_OFFSETS);
+      }
     }
 
     if (localShowSameLetters) {
