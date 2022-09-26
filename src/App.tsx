@@ -19,6 +19,7 @@ const range = (size: number) => [...Array(size).keys()];
 
 enum LocalStorageKey {
   HIGHLIGHTS = 'highlights',
+  HIGHLIGHT_MODE = 'highlightMode',
   ROW_ORDER_LEFT = 'rowOrder',
   ROW_ORDER_RIGHT = 'rowOrderRight',
   COL_ORDER = 'colOrder',
@@ -32,7 +33,7 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.6.7';
+const VERSION = 'v0.6.8';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -261,6 +262,7 @@ const App = () => {
     const localRowOrderLeft = window.localStorage.getItem(LocalStorageKey.ROW_ORDER_LEFT);
     const localColOrder = window.localStorage.getItem(LocalStorageKey.COL_ORDER);
     const localColOffsets = window.localStorage.getItem(LocalStorageKey.COL_OFFSETS);
+    const localHighlightMode = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_MODE);
     const localHighlightSameLettersWhenClicked = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED);
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
@@ -299,6 +301,10 @@ const App = () => {
       } else {
         window.localStorage.removeItem(LocalStorageKey.COL_OFFSETS);
       }
+    }
+
+    if (localHighlightMode) {
+      setHighlightMode(JSON.parse(localHighlightMode));
     }
 
     if (localHighlightSameLettersWhenClicked) {
@@ -738,7 +744,10 @@ const App = () => {
                         <td
                           key={`highlight-option-${n + 1}`}
                           className={`highlight-cell highlight-${n + 1} ${highlightMode === n ? 'check-mark' : ''} cursor-pointer`}
-                          onClick={() => setHighlightMode(n)}
+                          onClick={() => {
+                            setHighlightMode(n);
+                            window.localStorage.setItem(LocalStorageKey.HIGHLIGHT_MODE, JSON.stringify(n));
+                          }}
                         >
                           {highlightMode === n ? '✔' : (row === 0 && n === 5 ? 'Hide' : '')}
                         </td>
