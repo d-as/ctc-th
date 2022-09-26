@@ -136,6 +136,8 @@ td {
     }
   }
 
+  // Highlights could be generated with a mixin/loop/something
+
   &.highlight-1 {
     background-color: hsl(350, 100%, 88%);
 
@@ -410,4 +412,8 @@ td {
 
 .border-top-white {
   border-top: solid white 2px;
+}
+
+.indent {
+  margin-left: 1rem;
 }

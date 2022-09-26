@@ -36,6 +36,7 @@ enum LocalStorageKey {
   ROW_ORDER_RIGHT = 'rowOrderRight',
   COL_ORDER = 'colOrder',
   COL_OFFSETS = 'colOffsets',
+  HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED = 'highlightSameLettersWhenClicked',
   SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
   SHOW_MATCHING_LETTERS = 'showMatchingLetters',
   SHOW_VOWELS = 'showVowels',
@@ -56,10 +57,15 @@ const App = () => {
   const [rowOrderLeft, setRowOrderLeft] = useState(range(11));
   const [rowOrderRight, setRowOrderRight] = useState(range(11));
   const [colOrder, setColOrder] = useState(range(38));
+
+  // Highlights could be stored in a single state, e.g. Record<string, HighlightType>
+  // This would require invalidating highlights saved with an older version
+
   const [highlights1, setHighlights1] = useState(new Set<string>());
   const [highlights2, setHighlights2] = useState(new Set<string>());
   const [highlights3, setHighlights3] = useState(new Set<string>());
   const [highlights4, setHighlights4] = useState(new Set<string>());
+
   const [hidden, setHidden] = useState(new Set<string>());
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(38).map(n => [n, 0])));
   const [highlightMode, setHighlightMode] = useState(HighlightMode.HIGHLIGHT_1);
@@ -70,6 +76,7 @@ const App = () => {
 
   const [showSubstitutions, setShowSubstitutions] = useState(false);
 
+  // These could be arrays instead of separate values, e.g. const [swapLeft, setSwapLeft] = useState<string[]>([])
   const [swapLeftRowFrom, setSwapLeftRowFrom] = useState('');
   const [swapLeftRowTo, setSwapLeftRowTo] = useState('');
   const [swapRightRowFrom, setSwapRightRowFrom] = useState('');
@@ -80,9 +87,12 @@ const App = () => {
   const [showSameLettersOnHover, setShowSameLettersOnHover] = useState(false);
   const [showMatchingLettersBetweenSides, setShowMatchingLettersBetweenSides] = useState(false);
   const [showVowels, setShowVowels] = useState(false);
+  const [highlightSameLettersWhenClicked, setHighlightSameLettersWhenClicked] = useState(false);
   const [showOrdinals, setShowOrdinals] = useState(false); // TODO: Add a setting for this
+
   const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
 
+  // Don't use this for rows, use rowToLetter instead since it handles column rotations
   const indexToLetter = (index: number): string => String.fromCharCode('A'.charCodeAt(0) + index - 1);
 
   const rowToLetter = (row: number): string => {
@@ -344,6 +354,7 @@ const App = () => {
     const localRowOrderLeft = window.localStorage.getItem(LocalStorageKey.ROW_ORDER_LEFT);
     const localColOrder = window.localStorage.getItem(LocalStorageKey.COL_ORDER);
     const localColOffsets = window.localStorage.getItem(LocalStorageKey.COL_OFFSETS);
+    const localHighlightSameLettersWhenClicked = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED);
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
     const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
@@ -397,6 +408,10 @@ const App = () => {
       } else {
         window.localStorage.removeItem(LocalStorageKey.COL_OFFSETS);
       }
+    }
+
+    if (localHighlightSameLettersWhenClicked) {
+      setHighlightSameLettersWhenClicked(JSON.parse(localHighlightSameLettersWhenClicked));
     }
 
     if (localShowSameLetters) {
@@ -600,6 +615,11 @@ const App = () => {
   const changeShowMatchingLettersBetweenSides = (show: boolean): void => {
     setShowMatchingLettersBetweenSides(show);
     window.localStorage.setItem(LocalStorageKey.SHOW_MATCHING_LETTERS, JSON.stringify(show));
+  };
+
+  const changeHighlightSameLettersWhenClicked = (checked: boolean): void => {
+    setHighlightSameLettersWhenClicked(checked);
+    window.localStorage.setItem(LocalStorageKey.HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED, JSON.stringify(checked));
   };
 
   const changeShowVowels = (show: boolean): void => {
@@ -872,6 +892,20 @@ const App = () => {
                 Show same letters on hover
               </label>
             </span>
+            {/* TODO: Add option for highlighting same letters when a cell is clicked, probably requires highlight refactor */}
+            {false && (
+            <span className="option-row indent">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={highlightSameLettersWhenClicked}
+                  disabled={!showSameLettersOnHover}
+                  onChange={e => changeHighlightSameLettersWhenClicked(e.target.checked)}
+                />
+                Highlight same letters when clicked
+              </label>
+            </span>
+            )}
             <span className="option-row">
               <label>
                 <input
