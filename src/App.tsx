@@ -44,7 +44,7 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.6.2';
+const VERSION = 'v0.6.3';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests'
 
@@ -82,11 +82,13 @@ const App = () => {
   const [showVowels, setShowVowels] = useState(false);
   const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
 
-  const indexToLetter = (row: number): string => {
+  const indexToLetter = (index: number): string => String.fromCharCode('A'.charCodeAt(0) + index - 1);
+
+  const rowToLetter = (row: number): string => {
     while (row > 10) {
       row -= 10;
     }
-    return String.fromCharCode('A'.charCodeAt(0) + row - 1);
+    return indexToLetter(row);
   };
 
   const letterToIndex = (letter: string): number => {
@@ -109,7 +111,7 @@ const App = () => {
       }
       return col.toString();
     } else if (col === 0 || col === 37) {
-      return indexToLetter(row);
+      return rowToLetter(row);
     }
 
     const cell = rows[row - 1][col - 1];
@@ -122,7 +124,7 @@ const App = () => {
   };
 
   const getCellKey = (row: number, col: number): string => {
-    return [indexToLetter(row), col].join(',');
+    return [rowToLetter(row), col].join(',');
   };
 
   const getActiveCellStyle = (row: number, col: number, cell: string): string => {
@@ -774,7 +776,7 @@ const App = () => {
               <>
                 <tr className="border-top-white">
                   {range(38).map(i => {
-                    const letter = indexToLetter(i - 5);;
+                    const letter = indexToLetter(i - 5);
                     return (
                       <td
                         className="arrow-cell"
