@@ -27,6 +27,7 @@ enum LocalStorageKey {
   HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED = 'highlightSameLettersWhenClicked',
   SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
   SHOW_MATCHING_LETTERS = 'showMatchingLetters',
+  SHOW_COMMON_LETTERS_ON_EACH_ROW = 'showCommonLettersOnEachRow',
   SHOW_VOWELS = 'showVowels',
   SHOW_SUBSTITUTIONS = 'showSubstitutions',
   SUBSTITUTIONS = 'substitutions',
@@ -65,6 +66,7 @@ const App = () => {
 
   const [showSameLettersOnHover, setShowSameLettersOnHover] = useState(false);
   const [showMatchingLettersBetweenSides, setShowMatchingLettersBetweenSides] = useState(false);
+  const [showCommonLettersBetweenSidesOnEachRow, setShowCommonLettersBetweenSidesOnEachRow] = useState(false);
   const [showVowels, setShowVowels] = useState(false);
   const [highlightSameLettersWhenClicked, setHighlightSameLettersWhenClicked] = useState(false);
   const [showOrdinals, setShowOrdinals] = useState(false); // TODO: Add a setting for this
@@ -141,6 +143,13 @@ const App = () => {
     return cell === oppositeCell ? 'cell-matching' : '';
   };
 
+  const getCommonLetterCellStyle = (trueRow: number, trueCol: number): string => {
+    const cell = getTrueCell(trueRow, trueCol);
+    // TODO: Check if true row includes the same cell value on the other side
+    // Maybe refactor so that substitutions are done before calling setTrueRows and remove substituting in getTrueCell
+    return '';
+  };
+
   const isVowel = (cell: string): boolean => 'AEIOU'.includes(cell);
 
   const getCellStyle = (row: number, col: number, trueRow: number, trueCol: number): string => {
@@ -162,6 +171,7 @@ const App = () => {
       highlight !== undefined ? `highlight-${highlight + 1}` : '',
       showSameLettersOnHover && cell === hoveredLetter ? 'hovered-letter-cell' : '',
       showMatchingLettersBetweenSides ? getMatchingCellStyle(trueRow, trueCol) : '',
+      showMatchingLettersBetweenSides && showCommonLettersBetweenSidesOnEachRow ? getCommonLetterCellStyle(trueRow, trueCol) : '',
       showVowels && isVowel(cell) ? 'cell-vowel' : '',
     ]
       .join(' ');
@@ -302,6 +312,7 @@ const App = () => {
     const localHighlightSameLettersWhenClicked = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED);
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
+    const localShowCommonLettersOnEachRow = window.localStorage.getItem(LocalStorageKey.SHOW_COMMON_LETTERS_ON_EACH_ROW);
     const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
     const localShowSubstitutions = window.localStorage.getItem(LocalStorageKey.SHOW_SUBSTITUTIONS);
     const localSubstitutions = window.localStorage.getItem(LocalStorageKey.SUBSTITUTIONS);
@@ -353,6 +364,10 @@ const App = () => {
 
     if (localShowMatchingLetters) {
       setShowMatchingLettersBetweenSides(JSON.parse(localShowMatchingLetters));
+    }
+
+    if (localShowCommonLettersOnEachRow) {
+      setShowCommonLettersBetweenSidesOnEachRow(JSON.parse(localShowCommonLettersOnEachRow));
     }
 
     if (localShowVowels) {
@@ -809,6 +824,23 @@ const App = () => {
                 Show matching letters between sides
               </label>
             </span>
+            {/* TODO: Add option for showing common letters between sides on each row */}
+            {false && (
+              <span className="option-row indent">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showCommonLettersBetweenSidesOnEachRow}
+                    disabled={!showMatchingLettersBetweenSides}
+                    onChange={({ target: { checked } }) => {
+                      setShowCommonLettersBetweenSidesOnEachRow(checked);
+                      window.localStorage.setItem(LocalStorageKey.SHOW_COMMON_LETTERS_ON_EACH_ROW, JSON.stringify(checked));
+                    }}
+                  />
+                  Show common letters on each row
+                </label>
+              </span>
+            )}
             <span className="option-row">
               <label>
                 <input
