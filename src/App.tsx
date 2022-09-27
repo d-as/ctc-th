@@ -98,11 +98,11 @@ const App = () => {
 
   // Returns the cell value from the original grid at a given position
   // If you need a value from the current layout of the grid, use getTrueCell
-  const getCell = (row: number, col: number, trueCol?: number, visual = false): string => {
+  const getCell = (row: number, col: number, trueCol?: number, startColumnsFromOneOnBothSide = false): string => {
     if (row === 0 && (col < 1 || col > 36)) {
       return ''
     } else if (row === 0) {
-      if (visual && trueCol !== undefined && trueCol > 18 && noDuplicateLabelsOnOneSide()) {
+      if (startColumnsFromOneOnBothSide && trueCol !== undefined && trueCol > 18 && noDuplicateLabelsOnOneSide()) {
         return (col > 18 ? (col - 18) : col).toString();
       }
       return col.toString();
@@ -647,7 +647,7 @@ const App = () => {
         onMouseEnter={() => hoverCell(row, col, trueRow, trueCol, true)}
         onMouseLeave={() => hoverCell(row, col, trueRow, trueCol, false)}
       >
-        {getCell(row, col, trueRow, true)}
+        {getCell(row, col, trueCol, true)}
       </td>
     );
   };
