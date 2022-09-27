@@ -36,7 +36,7 @@ enum LocalStorageKey {
 
 type Side = 'left' | 'right';
 
-const VERSION = 'v0.7.2';
+const VERSION = 'v0.7.3';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
