@@ -34,7 +34,9 @@ enum LocalStorageKey {
   VERSION = 'version',
 }
 
-const VERSION = 'v0.7.1';
+type Side = 'left' | 'right';
+
+const VERSION = 'v0.7.2';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -144,10 +146,11 @@ const App = () => {
   };
 
   const getCommonLetterCellStyle = (trueRow: number, trueCol: number): string => {
+    // It's a bit inefficient to calculate this separately for each cell, since it only changes per row
     const cell = getTrueCell(trueRow, trueCol);
-    // TODO: Check if true row includes the same cell value on the other side
-    // Maybe refactor so that substitutions are done before calling setTrueRows and remove substituting in getTrueCell
-    return '';
+    const side = trueCol <= 18 ? 'left' : 'right';
+    const otherSideCells = range(18).map(n => side === 'left' ? n + 19 : n + 1).map(col => getTrueCell(trueRow, col));
+    return otherSideCells.includes(cell) ? 'cell-matching' : '';
   };
 
   const isVowel = (cell: string): boolean => 'AEIOU'.includes(cell);
@@ -419,7 +422,7 @@ const App = () => {
     setTrueRows(newTrueRows);
   }, [rows, rowOrderLeft, rowOrderRight, colOrder]);
 
-  const swapRows = (side: 'left' | 'right') => {
+  const swapRows = (side: Side) => {
     const from = letterToIndex((side === 'left' ? swapLeftRowFrom : swapRightRowFrom));
     const to = letterToIndex((side === 'left' ? swapLeftRowTo : swapRightRowTo));
 
@@ -824,23 +827,20 @@ const App = () => {
                 Show matching letters between sides
               </label>
             </span>
-            {/* TODO: Add option for showing common letters between sides on each row */}
-            {false && (
-              <span className="option-row indent">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={showCommonLettersBetweenSidesOnEachRow}
-                    disabled={!showMatchingLettersBetweenSides}
-                    onChange={({ target: { checked } }) => {
-                      setShowCommonLettersBetweenSidesOnEachRow(checked);
-                      window.localStorage.setItem(LocalStorageKey.SHOW_COMMON_LETTERS_ON_EACH_ROW, JSON.stringify(checked));
-                    }}
-                  />
-                  Show common letters on each row
-                </label>
-              </span>
-            )}
+            <span className="option-row indent">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showCommonLettersBetweenSidesOnEachRow}
+                  disabled={!showMatchingLettersBetweenSides}
+                  onChange={({ target: { checked } }) => {
+                    setShowCommonLettersBetweenSidesOnEachRow(checked);
+                    window.localStorage.setItem(LocalStorageKey.SHOW_COMMON_LETTERS_ON_EACH_ROW, JSON.stringify(checked));
+                  }}
+                />
+                Show common letters on each row
+              </label>
+            </span>
             <span className="option-row">
               <label>
                 <input

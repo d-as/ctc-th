@@ -233,6 +233,7 @@ td {
   font-size: 10pt;
 
   .version-text {
+    cursor: help;
     transition: color 0.2s;
 
     &:hover {
