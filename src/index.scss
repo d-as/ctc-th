@@ -324,10 +324,6 @@ td {
   justify-content: flex-end;
 }
 
-.hint-text {
-  font-size: 10pt;
-}
-
 .substitution-options {
   display: flex;
   flex-direction: column;
@@ -365,4 +361,8 @@ td {
 
 .indent {
   margin-left: 1rem;
+}
+
+.small-text {
+  font-size: 10pt;
 }

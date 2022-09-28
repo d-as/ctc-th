@@ -36,7 +36,7 @@ enum LocalStorageKey {
 
 type Side = 'left' | 'right';
 
-const VERSION = 'v0.7.3';
+const VERSION = 'v0.8.0';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -90,7 +90,11 @@ const App = () => {
       return -1;
     }
     return letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
-  }
+  };
+
+  const getOrdinal = (letter: string): number => {
+    return (letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1);
+  };
 
   const noDuplicateLabelsOnOneSide = (): boolean => {
     return colOrder.slice(0, 19).every(col => col < 19);
@@ -112,8 +116,7 @@ const App = () => {
 
     const cell = rows[row - 1][col - 1];
     const letter = showSubstitutions ? substitutions[cell] : cell;
-    const ordinal = (letter.charCodeAt(0) - 'A'.charCodeAt(0) + 1).toString(); // A = 1, B = 2 etc.
-    return showOrdinals ? ordinal : letter;
+    return showOrdinals ? getOrdinal(letter).toString() : letter;
   };
 
   // True cell refers to the cell that is currently displayed at a given position
@@ -627,6 +630,22 @@ const App = () => {
     }
   };
 
+  const columnSum = (col: number): number => {
+    return rows.reduce((current, row) => current + getOrdinal(row[col - 1]), 0);
+  };
+
+  const copyToClipboard = (): void => {
+    const data = trueRows.map((row, rowIndex) => {
+      return [...row]
+        .map((letter, colIndex) => highlights[getCellKey(rowIndex + 1, colIndex + 1)] === 5 ? ' ' : letter)
+        .join('')
+        .match(/.{18}/g)
+        ?.join(' ');
+    }).join('\n');
+
+    window.navigator.clipboard.writeText(data);
+  };
+
   const renderCell = (row: number, col: number, trueRow: number, trueCol: number): JSX.Element => {
     return (
       <td
@@ -728,6 +747,18 @@ const App = () => {
           {renderSides()}
         </tbody>
         <tfoot>
+          {showOrdinals ? (
+            <tr>
+              {colOrder.map(col => (
+                <td
+                  key={`ordinal-${col}`}
+                  className="border-top-bold arrow-cell small-text"
+                >
+                  {col > 0 && col <= 36 ? columnSum(col) : ''}
+                </td>
+              ))}
+            </tr>
+          ) : null}
           <tr>
             {colOrder.map(col => (
               <td
@@ -740,52 +771,52 @@ const App = () => {
             ))}
           </tr>
           {showSubstitutions ? (
-              <>
-                <tr className="border-top-white">
-                  {range(38).map(i => {
-                    const letter = indexToLetter(i - 5);
-                    return (
-                      <td
-                        className="arrow-cell"
-                        key={`substitution-key-${i}`}
-                        onClick={() => {
-                          if (showSameLettersOnHover && highlightSameLettersWhenClicked) {
-                            highlightAllCellsWithValue(letter);
-                          }
-                        }}
-                        onMouseEnter={() => setHoveredLetter(letter)}
-                        onMouseLeave={() => setHoveredLetter(undefined)}
-                      >
-                        {i > 5 && i < 32 ? letter : ''}
-                      </td>
-                    );
-                  })}
-                </tr>
-                <tr>
-                  {range(38).map(i => {
-                    const letter = indexToLetter(i - 5);
-                    const substitution = substitutions[letter];
-                    return (
-                      <td
-                        className="arrow-cell"
-                        key={`substitution-value-${i}`}
-                        onMouseEnter={() => setHoveredLetter(substitution)}
-                        onMouseLeave={() => setHoveredLetter(undefined)}
-                      >
-                        {i > 5 && i < 32 ? (
-                          <input
-                            className={`substitution-input ${letter === substitution ? 'faded' : ''}`}
-                            value={substitution}
-                            readOnly
-                            onKeyDown={e => changeSubstitution(letter, e.key.toUpperCase())}
-                          />
-                        ) : ''}
-                      </td>
-                    );
-                  })}
-                </tr>
-              </>
-            ) : null}
+            <>
+              <tr className="border-top-white">
+                {range(38).map(i => {
+                  const letter = indexToLetter(i - 5);
+                  return (
+                    <td
+                      className="arrow-cell"
+                      key={`substitution-key-${i}`}
+                      onClick={() => {
+                        if (showSameLettersOnHover && highlightSameLettersWhenClicked) {
+                          highlightAllCellsWithValue(letter);
+                        }
+                      }}
+                      onMouseEnter={() => setHoveredLetter(letter)}
+                      onMouseLeave={() => setHoveredLetter(undefined)}
+                    >
+                      {i > 5 && i < 32 ? letter : ''}
+                    </td>
+                  );
+                })}
+              </tr>
+              <tr>
+                {range(38).map(i => {
+                  const letter = indexToLetter(i - 5);
+                  const substitution = substitutions[letter];
+                  return (
+                    <td
+                      className="arrow-cell"
+                      key={`substitution-value-${i}`}
+                      onMouseEnter={() => setHoveredLetter(substitution)}
+                      onMouseLeave={() => setHoveredLetter(undefined)}
+                    >
+                      {i > 5 && i < 32 ? (
+                        <input
+                          className={`substitution-input ${letter === substitution ? 'faded' : ''}`}
+                          value={substitution}
+                          readOnly
+                          onKeyDown={e => changeSubstitution(letter, e.key.toUpperCase())}
+                        />
+                      ) : ''}
+                    </td>
+                  );
+                })}
+              </tr>
+            </>
+          ) : null}
         </tfoot>
       </table>
       <div className="footer-container">
@@ -872,10 +903,25 @@ const App = () => {
                 Show vowels
               </label>
             </span>
+            {/* TODO: Show ordinals */}
+            {false && (
+              <span className="option-row">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={showOrdinals}
+                    onChange={e => {
+                      setShowOrdinals(e.target.checked);
+                    }}
+                  />
+                  Show ordinals (experimental)
+                </label>
+              </span>
+            )}
           </div>
         </div>
         <div className="col flex-gap">
-          <span className="white hint-text">
+          <span className="white small-text">
             Click row/column labels to select them
           </span>
           <div className="option-row">
@@ -929,6 +975,9 @@ const App = () => {
               Reset substitutions
             </button>
           </span>
+          <button onClick={() => copyToClipboard()}>
+            Copy to clipboard
+          </button>
           <span className="version-container">
             <span className="version-text" title={VERSION_TEXT_TITLE}>
               {VERSION_TEXT}
