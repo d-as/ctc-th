@@ -637,7 +637,9 @@ const App = () => {
   const copyToClipboard = (): void => {
     const data = trueRows.map((row, rowIndex) => {
       return [...row]
-        .map((letter, colIndex) => highlights[getCellKey(rowIndex + 1, colIndex + 1)] === 5 ? ' ' : letter)
+        .map((letter, colIndex) => (
+          highlights[getCellKey(rowIndex + 1 + colOffsets[colIndex + 1], colIndex + 1)] === 5 ? ' ' : letter
+        ))
         .join('')
         .match(/.{18}/g)
         ?.join(' ');
