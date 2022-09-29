@@ -37,7 +37,7 @@ enum LocalStorageKey {
 
 type Side = 'left' | 'right';
 
-const VERSION = 'v0.8.3';
+const VERSION = 'v0.8.4';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -186,6 +186,10 @@ const App = () => {
   };
 
   const headerClicked = (row: number, col: number, trueRow: number, trueCol: number): void => {
+    if (!showShiftSwapTools) {
+      return;
+    }
+
     const cell = getCell(row, col, trueCol);
 
     // This could be refactored if from/to states are combined to a single array state
