@@ -26,6 +26,7 @@ enum LocalStorageKey {
   COL_OFFSETS = 'colOffsets',
   HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED = 'highlightSameLettersWhenClicked',
   SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
+  SHOW_SHIFTING_TOOLS = 'showShiftingTools',
   SHOW_MATCHING_LETTERS = 'showMatchingLetters',
   SHOW_COMMON_LETTERS_ON_EACH_ROW = 'showCommonLettersOnEachRow',
   SHOW_VOWELS = 'showVowels',
@@ -36,7 +37,7 @@ enum LocalStorageKey {
 
 type Side = 'left' | 'right';
 
-const VERSION = 'v0.8.0';
+const VERSION = 'v0.8.1';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -71,6 +72,7 @@ const App = () => {
   const [showCommonLettersBetweenSidesOnEachRow, setShowCommonLettersBetweenSidesOnEachRow] = useState(false);
   const [showVowels, setShowVowels] = useState(false);
   const [highlightSameLettersWhenClicked, setHighlightSameLettersWhenClicked] = useState(false);
+  const [showShiftSwapTools, setShowShiftSwapTools] = useState(false);
   const [showOrdinals, setShowOrdinals] = useState(false); // TODO: Add a setting for this
 
   const [hoveredLetter, setHoveredLetter] = useState<string | undefined>();
@@ -316,6 +318,7 @@ const App = () => {
     const localColOffsets = window.localStorage.getItem(LocalStorageKey.COL_OFFSETS);
     const localHighlightMode = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_MODE);
     const localHighlightSameLettersWhenClicked = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED);
+    const localShowShiftingTools = window.localStorage.getItem(LocalStorageKey.SHOW_SHIFTING_TOOLS);
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
     const localShowCommonLettersOnEachRow = window.localStorage.getItem(LocalStorageKey.SHOW_COMMON_LETTERS_ON_EACH_ROW);
@@ -634,6 +637,10 @@ const App = () => {
     return rows.reduce((current, row) => current + getOrdinal(row[col - 1]), 0);
   };
 
+  const anyColHasOffset = (): boolean => {
+    return Object.values(colOffsets).some(colOffset => colOffset !== 0);
+  };
+
   const copyToClipboard = (): void => {
     const data = trueRows.map((row, rowIndex) => {
       return [...row]
@@ -719,31 +726,35 @@ const App = () => {
       </span>
       <table>
         <thead>
-          <tr>
-            {colOrder.map(col => {
-              const offset = (10 - colOffsets[col]) % 10;
-              return (
+          {showShiftSwapTools || anyColHasOffset() ? (
+            <tr>
+              {colOrder.map(col => {
+                const offset = (10 - colOffsets[col]) % 10;
+                return (
+                  <td
+                    key={`thead-offset-${col}`}
+                    className={getOffsetStyle(offset)}
+                    onClick={() => resetColOffset(col)}
+                  >
+                    {col > 0 && col <= 36 ? offset : ''}
+                  </td>
+                );
+              })}
+            </tr>
+          ) : null}
+          {showShiftSwapTools && (
+            <tr>
+              {colOrder.map(col => (
                 <td
-                  key={`thead-offset-${col}`}
-                  className={getOffsetStyle(offset)}
-                  onClick={() => resetColOffset(col)}
+                  key={`thead-${col}`}
+                  className="border-bottom-bold arrow-cell"
+                  onClick={() => transposeCol(col, -1)}
                 >
-                  {col > 0 && col <= 36 ? offset : ''}
+                  {col > 0 && col <= 36 ? '↑' : ''}
                 </td>
-              );
-            })}
-          </tr>
-          <tr>
-            {colOrder.map(col => (
-              <td
-                key={`thead-${col}`}
-                className="border-bottom-bold arrow-cell"
-                onClick={() => transposeCol(col, -1)}
-              >
-                {col > 0 && col <= 36 ? '↑' : ''}
-              </td>
-            ))}
-          </tr>
+              ))}
+            </tr>
+          )}
         </thead>
         <tbody>
           {renderSides()}
@@ -761,17 +772,19 @@ const App = () => {
               ))}
             </tr>
           ) : null}
-          <tr>
-            {colOrder.map(col => (
-              <td
-                key={`tfoot-${col}`}
-                className="border-top-bold arrow-cell"
-                onClick={() => transposeCol(col, 1)}
-              >
-                {col > 0 && col <= 36 ? '↓' : ''}
-              </td>
-            ))}
-          </tr>
+          {showShiftSwapTools && (
+            <tr>
+              {colOrder.map(col => (
+                <td
+                  key={`tfoot-${col}`}
+                  className="border-top-bold arrow-cell"
+                  onClick={() => transposeCol(col, 1)}
+                >
+                  {col > 0 && col <= 36 ? '↓' : ''}
+                </td>
+              ))}
+            </tr>
+          )}
           {showSubstitutions ? (
             <>
               <tr className="border-top-white">
@@ -854,6 +867,19 @@ const App = () => {
               <label>
                 <input
                   type="checkbox"
+                  checked={showShiftSwapTools}
+                  onChange={({ target: { checked } }) => {
+                    setShowShiftSwapTools(checked);
+                    window.localStorage.setItem(LocalStorageKey.SHOW_SHIFTING_TOOLS, JSON.stringify(checked));
+                  }}
+                />
+                Show shift/swap tools
+              </label>
+            </span>
+            <span className="option-row">
+              <label>
+                <input
+                  type="checkbox"
                   checked={showMatchingLettersBetweenSides}
                   onChange={e => changeShowMatchingLettersBetweenSides(e.target.checked)}
                 />
@@ -922,6 +948,7 @@ const App = () => {
             )}
           </div>
         </div>
+        {showShiftSwapTools ? (
         <div className="col flex-gap">
           <span className="white small-text">
             Click row/column labels to select them
@@ -961,6 +988,7 @@ const App = () => {
             </button>
           </div>
         </div>
+        ) : <div className="col flex-gap"></div>}
         <div className="col substitution-options">
           <span className="flex-gap">
             <button onClick={() => {
