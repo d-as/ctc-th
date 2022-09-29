@@ -26,7 +26,7 @@ enum LocalStorageKey {
   COL_OFFSETS = 'colOffsets',
   HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED = 'highlightSameLettersWhenClicked',
   SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
-  SHOW_SHIFTING_TOOLS = 'showShiftingTools',
+  SHOW_SHIFT_SWAP_TOOLS = 'showShiftSwapTools',
   SHOW_MATCHING_LETTERS = 'showMatchingLetters',
   SHOW_COMMON_LETTERS_ON_EACH_ROW = 'showCommonLettersOnEachRow',
   SHOW_VOWELS = 'showVowels',
@@ -37,7 +37,7 @@ enum LocalStorageKey {
 
 type Side = 'left' | 'right';
 
-const VERSION = 'v0.8.1';
+const VERSION = 'v0.8.2';
 const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
@@ -318,7 +318,7 @@ const App = () => {
     const localColOffsets = window.localStorage.getItem(LocalStorageKey.COL_OFFSETS);
     const localHighlightMode = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_MODE);
     const localHighlightSameLettersWhenClicked = window.localStorage.getItem(LocalStorageKey.HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED);
-    const localShowShiftingTools = window.localStorage.getItem(LocalStorageKey.SHOW_SHIFTING_TOOLS);
+    const localShowShiftSwapTools = window.localStorage.getItem(LocalStorageKey.SHOW_SHIFT_SWAP_TOOLS);
     const localShowSameLetters = window.localStorage.getItem(LocalStorageKey.SHOW_SAME_LETTERS_ON_HOVER);
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
     const localShowCommonLettersOnEachRow = window.localStorage.getItem(LocalStorageKey.SHOW_COMMON_LETTERS_ON_EACH_ROW);
@@ -365,6 +365,10 @@ const App = () => {
 
     if (localHighlightSameLettersWhenClicked) {
       setHighlightSameLettersWhenClicked(JSON.parse(localHighlightSameLettersWhenClicked));
+    }
+
+    if (localShowShiftSwapTools) {
+      setShowShiftSwapTools(JSON.parse(localShowShiftSwapTools));
     }
 
     if (localShowSameLetters) {
@@ -870,7 +874,7 @@ const App = () => {
                   checked={showShiftSwapTools}
                   onChange={({ target: { checked } }) => {
                     setShowShiftSwapTools(checked);
-                    window.localStorage.setItem(LocalStorageKey.SHOW_SHIFTING_TOOLS, JSON.stringify(checked));
+                    window.localStorage.setItem(LocalStorageKey.SHOW_SHIFT_SWAP_TOOLS, JSON.stringify(checked));
                   }}
                 />
                 Show shift/swap tools
