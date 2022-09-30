@@ -12,6 +12,7 @@ export enum LocalStorageKey {
   SHOW_MATCHING_LETTERS = 'showMatchingLetters',
   SHOW_COMMON_LETTERS_ON_EACH_ROW = 'showCommonLettersOnEachRow',
   SHOW_VOWELS = 'showVowels',
+  SHOW_TRANSPOSED_GRID = 'showTransposedGrid',
   SHOW_SUBSTITUTIONS = 'showSubstitutions',
   SUBSTITUTIONS = 'substitutions',
   VERSION = 'version',
@@ -19,7 +20,7 @@ export enum LocalStorageKey {
 
 export type Side = 'left' | 'right';
 
-export const VERSION = 'v0.9.0';
+export const VERSION = 'v0.9.1';
 export const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 export const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 

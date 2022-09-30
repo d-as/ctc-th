@@ -1,28 +1,21 @@
-import React from 'react'
+import { StrictMode, useState } from 'react'
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { App } from './App';
+import { AppContext } from './AppContext';
 import './index.scss';
-import { NotFound } from './NotFound';
-import { Transposed } from './Transposed';
 
-const errorElement = <NotFound />;
+const Root = (): JSX.Element => {
+  const [showTransposedGrid, setShowTransposedGrid] = useState(false);
 
-const router = createBrowserRouter([
-  {
-    path: '/ctc-transpose-helper',
-    element: <App />,
-    errorElement,
-  },
-  {
-    path: '/ctc-transpose-helper/transposed',
-    element: <Transposed />,
-    errorElement,
-  }
-]);
+  return (
+    <AppContext.Provider value={{ showTransposedGrid, setShowTransposedGrid }}>
+      <App />
+    </AppContext.Provider>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>,
+  <StrictMode>
+    <Root />
+  </StrictMode>
 );

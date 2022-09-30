@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
-import { ALPHABET, VERSION, Side, VERSION_TEXT_TITLE, VERSION_TEXT, LocalStorageKey, ROW_DATA } from './constants';
+import { useContext, useEffect, useState } from 'react';
+import { ALPHABET, VERSION, Side, LocalStorageKey, ROW_DATA } from './constants';
 import { Highlights } from './Highlights';
+import { AppContext } from './AppContext';
 import { range } from './util';
 import { VersionInfo } from './VersionInfo';
+import { Transposed } from './Transposed';
 
 export const App = () => {
   const [rows, setRows] = useState([...ROW_DATA]);
@@ -13,6 +15,7 @@ export const App = () => {
   const [highlights, setHighlights] = useState<Record<string, number | undefined>>({});
   const [colOffsets, setColOffsets] = useState(Object.fromEntries(range(38).map(n => [n, 0])));
   const [highlightMode, setHighlightMode] = useState(0);
+  const { showTransposedGrid, setShowTransposedGrid } = useContext(AppContext);
 
   const [substitutions, setSubstitutions] = useState<Record<string, string>>(
     Object.fromEntries([...ALPHABET].map(letter => [letter, letter])),
@@ -288,6 +291,7 @@ export const App = () => {
     const localShowMatchingLetters = window.localStorage.getItem(LocalStorageKey.SHOW_MATCHING_LETTERS);
     const localShowCommonLettersOnEachRow = window.localStorage.getItem(LocalStorageKey.SHOW_COMMON_LETTERS_ON_EACH_ROW);
     const localShowVowels = window.localStorage.getItem(LocalStorageKey.SHOW_VOWELS);
+    const localShowTransposedGrid = window.localStorage.getItem(LocalStorageKey.SHOW_TRANSPOSED_GRID);
     const localShowSubstitutions = window.localStorage.getItem(LocalStorageKey.SHOW_SUBSTITUTIONS);
     const localSubstitutions = window.localStorage.getItem(LocalStorageKey.SUBSTITUTIONS);
     const localVersion = window.localStorage.getItem(LocalStorageKey.VERSION);
@@ -350,6 +354,10 @@ export const App = () => {
 
     if (localShowVowels) {
       setShowVowels(JSON.parse(localShowVowels));
+    }
+
+    if (localShowTransposedGrid) {
+      setShowTransposedGrid(JSON.parse(localShowTransposedGrid));
     }
 
     if (localShowSubstitutions) {
@@ -658,6 +666,10 @@ export const App = () => {
     ));
   };
 
+  if (showTransposedGrid) {
+    return <Transposed />;
+  }
+
   return (
     <div className="app">
       <span className="reset-container">
@@ -894,6 +906,15 @@ export const App = () => {
                 </label>
               </span>
             )}
+            <a
+              className="cursor-pointer"
+              onClick={() => {
+                setShowTransposedGrid(true);
+                window.localStorage.setItem(LocalStorageKey.SHOW_TRANSPOSED_GRID, JSON.stringify(true));
+              }}
+            >
+              BETA: Show transposed grid
+            </a>
           </div>
         </div>
         {showShiftSwapTools ? (

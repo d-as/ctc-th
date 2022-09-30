@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AppContext } from "./AppContext";
 import { LocalStorageKey, ROW_DATA_TRANSPOSED } from "./constants";
 import { Highlights } from "./Highlights";
 import { range } from "./util";
@@ -8,6 +9,7 @@ export const Transposed = (): JSX.Element => {
   const [rows] = useState([...ROW_DATA_TRANSPOSED]);
   const [highlightMode, setHighlightMode] = useState(0);
   const [highlights, setHighlights] = useState<Record<string, number | undefined>>({});
+  const { setShowTransposedGrid } = useContext(AppContext);
 
   const getCellKey = (rowIndex: number, colIndex: number): string => [rowIndex, colIndex].join('_');
 
@@ -62,7 +64,15 @@ export const Transposed = (): JSX.Element => {
 
   return (
     <div className="col">
-      <a href="/">Normal mode</a>
+      <a
+        className="cursor-pointer"
+        onClick={() => {
+          setShowTransposedGrid(false);
+          window.localStorage.setItem(LocalStorageKey.SHOW_TRANSPOSED_GRID, JSON.stringify(false));
+        }}
+      >
+        Normal mode
+      </a>
       <div className="spacer"></div>
       <table>
         <thead>
