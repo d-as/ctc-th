@@ -1,7 +1,7 @@
 @import 'highlights';
 
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: monospace;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -36,11 +36,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: hsl(237, 75%, 75%);
   text-decoration: inherit;
 
   &:hover {
-    color: #535bf2;
+    color: hsl(237, 75%, 80%);
   }
 }
 
@@ -177,6 +177,10 @@ td {
 
   &.border-left-dashed {
     border-left-style: dashed;
+  }
+
+  &.border-top-dashed {
+    border-top-style: dashed;
   }
 }
 
@@ -365,4 +369,9 @@ td {
 
 .small-text {
   font-size: 10pt;
+}
+
+.not-found {
+  font-size: 16pt;
+  color: white;
 }

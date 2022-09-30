@@ -1,0 +1,64 @@
+export enum LocalStorageKey {
+  HIGHLIGHTS = 'highlights',
+  HIGHLIGHTS_TRANSPOSED = 'highlightsTransposed',
+  HIGHLIGHT_MODE = 'highlightMode',
+  ROW_ORDER_LEFT = 'rowOrder',
+  ROW_ORDER_RIGHT = 'rowOrderRight',
+  COL_ORDER = 'colOrder',
+  COL_OFFSETS = 'colOffsets',
+  HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED = 'highlightSameLettersWhenClicked',
+  SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
+  SHOW_SHIFT_SWAP_TOOLS = 'showShiftSwapTools',
+  SHOW_MATCHING_LETTERS = 'showMatchingLetters',
+  SHOW_COMMON_LETTERS_ON_EACH_ROW = 'showCommonLettersOnEachRow',
+  SHOW_VOWELS = 'showVowels',
+  SHOW_SUBSTITUTIONS = 'showSubstitutions',
+  SUBSTITUTIONS = 'substitutions',
+  VERSION = 'version',
+}
+
+export type Side = 'left' | 'right';
+
+export const VERSION = 'v0.9.0';
+export const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
+export const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
+
+export const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+const DATA = [
+  ['YPWAIETOAENRMHMGEN', 'MIVWDMKDTCBANGBFKW'],
+  ['NQLLWQMIRLVFSDROTN', 'VKIIAAKIRLHADHESVG'],
+  ['LINVADMCURYBOFEUAI', 'DRULRHTDEESEBREPYE'],
+  ['VRBOOHHSDEWEAANANN', 'EERATOLITEJEPEPZFN'],
+  ['ANHIITBICPATELTTMH', 'FEKETCHPMSNAFEWNQM'],
+  ['SFTOAINWLXARKLANFE', 'NEWEDSANENTEGQLHUA'],
+  ['OENIRSRONOFKGVEKAR', 'TLBGONGUWHILPAFNAS'],
+  ['EHERESSOVEMDGJTCWS', 'RDMCORRODAPJNLSAWY'],
+  ['TASEWNHEVGRANOKNOT', 'SHTOELHTICUTMLHOIO'],
+  ['HRFRONLRATTATTIQAT', 'ANEUOASGNHSFALEHND'],
+];
+
+const DATA_TRANSPOSED = [
+  ['YNLVASOETH', 'MVDEFNTRSA'],
+  ['PQIRNFEHAR', 'IKREEELDHN'],
+  ['WLNBHTNESF', 'VIURKWBMTE'],
+  ['ALVOIOIRER', 'WILAEEGCOU'],
+  ['IWAOIAREWO', 'DARTTDOOEO'],
+  ['EQDHTISSNN', 'MAHOCSNRLA'],
+  ['TMMHBNRSHL', 'KKTLHAGRHS'],
+  ['OICSIWOOER', 'DIDIPNUOTG'],
+  ['ARUDCLNVVA', 'TRETMEWDIN'],
+  ['ELREPXOEGT', 'CLEESNHACH'],
+  ['NVYWAAFMRT', 'BHSJNTIPUS'],
+  ['RFBETRKDAA', 'AAEEAELJTF'],
+  ['MSOAEKGGNT', 'NDBPFGPNMA'],
+  ['HDFALLVJOT', 'GHREEQALLL'],
+  ['MRENTAETKI', 'BEEPWLFSHE'],
+  ['GOUATNKCNQ', 'FSPZNHNAOH'],
+  ['ETANMFAWOA', 'KVYFQUAWIN'],
+  ['NNINHERSTT', 'WGENMASYOD'],
+];
+
+export const ROW_DATA = DATA.map(([l, r]) => `${l}${r}`);
+
+export const ROW_DATA_TRANSPOSED = DATA_TRANSPOSED.map(([l, r]) => `${l}${r}`);

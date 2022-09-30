@@ -1,10 +1,28 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-import './index.scss'
+import ReactDOM from 'react-dom/client';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { App } from './App';
+import './index.scss';
+import { NotFound } from './NotFound';
+import { Transposed } from './Transposed';
+
+const errorElement = <NotFound />;
+
+const router = createBrowserRouter([
+  {
+    path: '/ctc-transpose-helper',
+    element: <App />,
+    errorElement,
+  },
+  {
+    path: '/ctc-transpose-helper/transposed',
+    element: <Transposed />,
+    errorElement,
+  }
+]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
+    <RouterProvider router={router} />
+  </React.StrictMode>,
+);

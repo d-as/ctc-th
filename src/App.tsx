@@ -1,50 +1,11 @@
 import { useEffect, useState } from 'react';
+import { ALPHABET, VERSION, Side, VERSION_TEXT_TITLE, VERSION_TEXT, LocalStorageKey, ROW_DATA } from './constants';
+import { Highlights } from './Highlights';
+import { range } from './util';
+import { VersionInfo } from './VersionInfo';
 
-const data = [
-  ['YPWAIETOAENRMHMGEN', 'MIVWDMKDTCBANGBFKW'],
-  ['NQLLWQMIRLVFSDROTN', 'VKIIAAKIRLHADHESVG'],
-  ['LINVADMCURYBOFEUAI', 'DRULRHTDEESEBREPYE'],
-  ['VRBOOHHSDEWEAANANN', 'EERATOLITEJEPEPZFN'],
-  ['ANHIITBICPATELTTMH', 'FEKETCHPMSNAFEWNQM'],
-  ['SFTOAINWLXARKLANFE', 'NEWEDSANENTEGQLHUA'],
-  ['OENIRSRONOFKGVEKAR', 'TLBGONGUWHILPAFNAS'],
-  ['EHERESSOVEMDGJTCWS', 'RDMCORRODAPJNLSAWY'],
-  ['TASEWNHEVGRANOKNOT', 'SHTOELHTICUTMLHOIO'],
-  ['HRFRONLRATTATTIQAT', 'ANEUOASGNHSFALEHND'],
-];
-
-const rowData = data.map(([l, r]) => `${l}${r}`);
-
-const range = (size: number) => [...Array(size).keys()];
-
-enum LocalStorageKey {
-  HIGHLIGHTS = 'highlights',
-  HIGHLIGHT_MODE = 'highlightMode',
-  ROW_ORDER_LEFT = 'rowOrder',
-  ROW_ORDER_RIGHT = 'rowOrderRight',
-  COL_ORDER = 'colOrder',
-  COL_OFFSETS = 'colOffsets',
-  HIGHLIGHT_SAME_LETTERS_WHEN_CLICKED = 'highlightSameLettersWhenClicked',
-  SHOW_SAME_LETTERS_ON_HOVER = 'showSameLettersOnHover',
-  SHOW_SHIFT_SWAP_TOOLS = 'showShiftSwapTools',
-  SHOW_MATCHING_LETTERS = 'showMatchingLetters',
-  SHOW_COMMON_LETTERS_ON_EACH_ROW = 'showCommonLettersOnEachRow',
-  SHOW_VOWELS = 'showVowels',
-  SHOW_SUBSTITUTIONS = 'showSubstitutions',
-  SUBSTITUTIONS = 'substitutions',
-  VERSION = 'version',
-}
-
-type Side = 'left' | 'right';
-
-const VERSION = 'v0.8.4';
-const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
-const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
-
-const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-const App = () => {
-  const [rows, setRows] = useState([...rowData]);
+export const App = () => {
+  const [rows, setRows] = useState([...ROW_DATA]);
   const [trueRows, setTrueRows] = useState(rows);
   const [rowOrderLeft, setRowOrderLeft] = useState(range(11));
   const [rowOrderRight, setRowOrderRight] = useState(range(11));
@@ -408,7 +369,7 @@ const App = () => {
     const newRows = range(10).map(row => {
       return range(36).map(col => {
         const colOffset = colOffsets[col + 1];
-        return rowData[(row + colOffset) % 10][col];
+        return ROW_DATA[(row + colOffset) % 10][col];
       })
         .join('');
     });
@@ -845,31 +806,10 @@ const App = () => {
       <div className="footer-container">
         <div className="col">
           <div className="options-container">
-            <span className="option-row">
-              Cell highlight mode
-            </span>
-            <span className="option-row">
-              <table className="black-borders">
-                <tbody>
-                  {range(2).map(row => (
-                    <tr key={`highlight-row-${row}`}>
-                      {range(6).map(n => n + (row * 6)).map(n => (
-                        <td
-                          key={`highlight-option-${n + 1}`}
-                          className={`highlight-cell highlight-${n + 1} ${highlightMode === n ? 'check-mark' : ''} cursor-pointer`}
-                          onClick={() => {
-                            setHighlightMode(n);
-                            window.localStorage.setItem(LocalStorageKey.HIGHLIGHT_MODE, JSON.stringify(n));
-                          }}
-                        >
-                          {highlightMode === n ? '✔' : (row === 0 && n === 5 ? 'Hide' : '')}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </span>
+            <Highlights
+              highlightMode={highlightMode}
+              setHighlightMode={setHighlightMode}
+            />
             <div className="spacer"></div>
             <span className="option-row">
               <label>
@@ -957,45 +897,45 @@ const App = () => {
           </div>
         </div>
         {showShiftSwapTools ? (
-        <div className="col flex-gap">
-          <span className="white small-text">
-            Click row/column labels to select them
-          </span>
-          <div className="option-row">
-            <button
-              onClick={() => swapCols(Number(swapColFrom), Number(swapColTo))}
-              disabled={!swapColFrom || !swapColTo}
-              className="wide-button"
-            >
-              Swap columns
-            </button>
+          <div className="col flex-gap">
+            <span className="white small-text">
+              Click row/column labels to select them
+            </span>
+            <div className="option-row">
+              <button
+                onClick={() => swapCols(Number(swapColFrom), Number(swapColTo))}
+                disabled={!swapColFrom || !swapColTo}
+                className="wide-button"
+              >
+                Swap columns
+              </button>
+            </div>
+            <div className="option-row">
+              <button
+                onClick={() => swapRows('left')}
+                disabled={!swapLeftRowFrom || !swapLeftRowTo}
+              >
+                Swap rows (left)
+              </button>
+              <button
+                onClick={() => swapRows('right')}
+                disabled={!swapRightRowFrom || !swapRightRowTo}
+              >
+                Swap rows (right)
+              </button>
+            </div>
+            <div className="option-row">
+              <button
+                onClick={() => clearSelectedRowsAndCols()}
+                disabled={
+                  !swapLeftRowFrom && !swapLeftRowTo && !swapRightRowFrom && !swapRightRowTo && !swapColFrom && !swapColTo
+                }
+                className="wide-button"
+              >
+                Clear selected rows/columns
+              </button>
+            </div>
           </div>
-          <div className="option-row">
-            <button
-              onClick={() => swapRows('left')}
-              disabled={!swapLeftRowFrom || !swapLeftRowTo}
-            >
-              Swap rows (left)
-            </button>
-            <button
-              onClick={() => swapRows('right')}
-              disabled={!swapRightRowFrom || !swapRightRowTo}
-            >
-              Swap rows (right)
-            </button>
-          </div>
-          <div className="option-row">
-            <button
-              onClick={() => clearSelectedRowsAndCols()}
-              disabled={
-                !swapLeftRowFrom && !swapLeftRowTo && !swapRightRowFrom && !swapRightRowTo && !swapColFrom && !swapColTo
-              }
-              className="wide-button"
-            >
-              Clear selected rows/columns
-            </button>
-          </div>
-        </div>
         ) : <div className="col flex-gap"></div>}
         <div className="col substitution-options">
           <span className="flex-gap">
@@ -1016,15 +956,9 @@ const App = () => {
           <button onClick={() => copyToClipboard()}>
             Copy to clipboard
           </button>
-          <span className="version-container">
-            <span className="version-text" title={VERSION_TEXT_TITLE}>
-              {VERSION_TEXT}
-            </span>
-          </span>
+          <VersionInfo />
         </div>
       </div>
     </div>
   );
 };
-
-export default App;
