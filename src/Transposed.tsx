@@ -64,15 +64,17 @@ export const Transposed = (): JSX.Element => {
 
   return (
     <div className="col">
-      <a
-        className="cursor-pointer"
-        onClick={() => {
-          setShowTransposedGrid(false);
-          window.localStorage.setItem(LocalStorageKey.SHOW_TRANSPOSED_GRID, JSON.stringify(false));
-        }}
-      >
-        Normal mode
-      </a>
+      <span>
+        <a
+          className="cursor-pointer"
+          onClick={() => {
+            setShowTransposedGrid(false);
+            window.localStorage.setItem(LocalStorageKey.SHOW_TRANSPOSED_GRID, JSON.stringify(false));
+          }}
+        >
+          Normal mode
+        </a>
+      </span>
       <div className="spacer"></div>
       <table>
         <thead>
