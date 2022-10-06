@@ -20,7 +20,7 @@ export enum LocalStorageKey {
 
 export type Side = 'left' | 'right';
 
-export const VERSION = 'v0.9.2';
+export const VERSION = 'v0.9.3';
 export const VERSION_TEXT = [VERSION, 'DAS#0437'].join(' / ');
 export const VERSION_TEXT_TITLE = 'Feel free to DM me on Discord if you have bug reports or feature requests';
 
